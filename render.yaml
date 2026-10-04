@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: luxury-stays
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn --chdir backend app:app
+    envVars:
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://rounak251.github.io

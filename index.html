@@ -1,186 +1,871 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Management</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            text-align: center;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-        header {
-            background: #ff6f61;
-            color: white;
-            padding: 15px 0;
-            animation: slideDown 1s ease-in-out;
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 15px;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-        }
-        section {
-            margin: 20px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            animation: fadeInUp 1s ease-in-out;
-        }
-        #rooms { background: #ffcc80; }
-        #services { background: #b2dfdb; }
-        #gallery { background: #90caf9; }
-        #testimonials { background: #f48fb1; }
-        #contact { background: #d1c4e9; }
-        .room-container, .services-container, .testimonial-container, .gallery-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .room, .service, .testimonial, .gallery-item {
-            background: white;
-            color: black;
-            padding: 20px;
-            border-radius: 10px;
-            width: 250px;
-            transition: transform 0.3s ease-in-out;
-        }
-        .room:hover, .service:hover, .testimonial:hover, .gallery-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-        button {
-            background: #6200ea;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background 0.3s ease-in-out;
-        }
-        button:hover {
-            background: #3700b3;
-        }
-        form input, form textarea {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        img {
-            width: 100%;
-            border-radius: 10px;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes fadeInUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luxury Stays | Boutique Resort & Spa</title>
+<meta name="description" content="Luxury Stays: a boutique resort with ocean-view rooms, an infinity pool, spa and fine dining. Check availability and book your stay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c1a17;
+    --ink-soft: #5b564e;
+    --cream: #faf7f2;
+    --sand: #f1ebe1;
+    --gold: #b08d57;
+    --gold-dark: #8f6f3e;
+    --white: #ffffff;
+    --radius: 14px;
+    --shadow: 0 10px 30px rgba(28, 26, 23, 0.08);
+    --shadow-lg: 0 20px 50px rgba(28, 26, 23, 0.16);
+    --serif: "Playfair Display", Georgia, serif;
+    --sans: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); color: var(--ink); background: var(--cream); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  .container { width: min(1180px, 100% - 40px); margin-inline: auto; }
+  section { padding: 96px 0; scroll-margin-top: 70px; }
+  .eyebrow { font-size: 0.78rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 500; line-height: 1.15; }
+  h2 { font-size: clamp(2rem, 4vw, 2.9rem); margin: 10px 0 16px; }
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 56px; }
+  .section-head p { color: var(--ink-soft); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: 999px; border: 1px solid transparent; font: 500 0.95rem var(--sans); cursor: pointer; transition: background .25s, color .25s, transform .25s, box-shadow .25s; }
+  .btn-gold { background: var(--gold); color: var(--white); }
+  .btn-gold:hover { background: var(--gold-dark); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(176, 141, 87, .35); }
+  .btn-outline { border-color: currentColor; background: transparent; }
+  .btn-outline:hover { background: var(--white); color: var(--ink); }
+  .btn-dark { background: var(--ink); color: var(--white); }
+  .btn-dark:hover { background: var(--gold); }
+
+  /* Header */
+  header { position: fixed; inset: 0 0 auto; z-index: 50; transition: background .3s, box-shadow .3s, padding .3s; padding: 22px 0; color: var(--white); }
+  header.scrolled { background: rgba(250, 247, 242, .96); backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,.06); padding: 12px 0; color: var(--ink); }
+  .nav { display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: var(--serif); font-size: 1.5rem; letter-spacing: .02em; }
+  .logo span { color: var(--gold); font-style: italic; }
+  .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+  .nav-links a { font-size: .92rem; position: relative; }
+  .nav-links a:not(.btn)::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 0; height: 1px; background: var(--gold); transition: width .3s; }
+  .nav-links a:not(.btn):hover::after { width: 100%; }
+  .nav-links .btn { padding: 10px 22px; }
+  .menu-toggle { display: none; background: none; border: 0; color: inherit; cursor: pointer; width: 40px; height: 40px; }
+  .menu-toggle span { display: block; width: 24px; height: 2px; background: currentColor; margin: 5px auto; transition: transform .3s, opacity .3s; }
+  .menu-open .menu-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .menu-open .menu-toggle span:nth-child(2) { opacity: 0; }
+  .menu-open .menu-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Hero */
+  .hero { position: relative; min-height: 100vh; display: flex; align-items: center; color: var(--white); padding: 140px 0 120px;
+    background: linear-gradient(180deg, rgba(10,12,20,.55), rgba(10,12,20,.35) 45%, rgba(10,12,20,.7)),
+                url("https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=2000&q=75&auto=format&fit=crop") center/cover; }
+  .hero-content { max-width: 720px; }
+  .hero h1 { font-size: clamp(2.6rem, 6.5vw, 5rem); margin: 16px 0 20px; }
+  .hero h1 em { color: #e3c48f; }
+  .hero p { font-size: 1.15rem; opacity: .9; max-width: 540px; margin-bottom: 34px; font-weight: 300; }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  /* Booking bar */
+  .booking { position: relative; z-index: 5; margin-top: -64px; }
+  .booking form { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 22px; display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 16px; align-items: end; }
+  .field label { display: block; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; font-weight: 600; }
+  .field input, .field select, .field textarea { width: 100%; padding: 12px 14px; border: 1px solid #e3ddd2; border-radius: 10px; font: 400 .95rem var(--sans); color: var(--ink); background: var(--cream); transition: border-color .2s, box-shadow .2s; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(176,141,87,.18); }
+  .field .error { display: none; color: #b3402e; font-size: .78rem; margin-top: 4px; }
+  .field.invalid input, .field.invalid textarea { border-color: #b3402e; }
+  .field.invalid .error { display: block; }
+
+  /* About */
+  .about-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
+  .about-img { position: relative; }
+  .about-img img { border-radius: var(--radius); aspect-ratio: 4/5; object-fit: cover; width: 100%; box-shadow: var(--shadow); }
+  .about-badge { position: absolute; right: -24px; bottom: 40px; background: var(--ink); color: var(--white); padding: 22px 26px; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+  .about-badge strong { font-family: var(--serif); font-size: 2.2rem; color: #e3c48f; display: block; line-height: 1; }
+  .about-text p { color: var(--ink-soft); margin-bottom: 16px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 34px; padding-top: 28px; border-top: 1px solid #e3ddd2; }
+  .stats strong { font-family: var(--serif); font-size: 2rem; display: block; }
+  .stats span { font-size: .85rem; color: var(--ink-soft); }
+
+  /* Rooms */
+  #rooms { background: var(--sand); }
+  .rooms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+  .room { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: transform .35s, box-shadow .35s; }
+  .room:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+  .room-img { position: relative; overflow: hidden; aspect-ratio: 4/3; }
+  .room-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
+  .room:hover .room-img img { transform: scale(1.06); }
+  .price-tag { position: absolute; top: 14px; right: 14px; background: rgba(28,26,23,.85); color: var(--white); padding: 6px 14px; border-radius: 999px; font-size: .85rem; }
+  .price-tag strong { color: #e3c48f; }
+  .room-body { padding: 22px; display: flex; flex-direction: column; flex: 1; }
+  .room-body h3 { font-size: 1.4rem; margin-bottom: 6px; }
+  .room-meta { display: flex; gap: 14px; font-size: .82rem; color: var(--ink-soft); margin-bottom: 12px; }
+  .room-body p { color: var(--ink-soft); font-size: .92rem; margin-bottom: 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .chip { font-size: .74rem; padding: 4px 10px; border-radius: 999px; background: var(--sand); color: var(--ink-soft); }
+  .room .btn { margin-top: auto; width: 100%; }
+
+  /* Amenities */
+  .amenities { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+  .amenity { background: var(--white); padding: 30px 26px; border-radius: var(--radius); border: 1px solid #eee7db; transition: border-color .3s, transform .3s; }
+  .amenity:hover { border-color: var(--gold); transform: translateY(-4px); }
+  .amenity svg { width: 38px; height: 38px; stroke: var(--gold); fill: none; stroke-width: 1.5; margin-bottom: 16px; }
+  .amenity h3 { font-size: 1.15rem; margin-bottom: 6px; }
+  .amenity p { font-size: .9rem; color: var(--ink-soft); }
+
+  /* Experiences */
+  #experiences { background: var(--ink); color: var(--white); }
+  #experiences .section-head p { color: rgba(255,255,255,.7); }
+  .exp { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; margin-bottom: 80px; }
+  .exp:last-child { margin-bottom: 0; }
+  .exp:nth-child(even) .exp-img { order: 2; }
+  .exp-img img { border-radius: var(--radius); aspect-ratio: 3/2; object-fit: cover; width: 100%; }
+  .exp h3 { font-size: 2rem; margin: 8px 0 14px; }
+  .exp p { color: rgba(255,255,255,.72); margin-bottom: 18px; }
+  .exp ul { list-style: none; display: grid; gap: 8px; }
+  .exp li::before { content: "✦"; color: var(--gold); margin-right: 10px; }
+
+  /* Gallery */
+  .gallery { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 220px; gap: 14px; grid-auto-flow: dense; }
+  .gallery button { border: 0; padding: 0; cursor: zoom-in; border-radius: 12px; overflow: hidden; position: relative; }
+  .gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s, filter .4s; }
+  .gallery button:hover img { transform: scale(1.07); filter: brightness(.85); }
+  .gallery .wide { grid-column: span 2; }
+  .gallery .tall { grid-row: span 2; }
+  .gallery .full { grid-column: 1 / -1; }
+  .lightbox { position: fixed; inset: 0; background: rgba(10,10,12,.92); z-index: 100; display: none; align-items: center; justify-content: center; padding: 30px; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-height: 84vh; border-radius: 10px; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+  .lightbox figcaption { color: rgba(255,255,255,.8); text-align: center; margin-top: 12px; font-size: .9rem; }
+  .lb-btn { position: absolute; background: rgba(255,255,255,.12); color: var(--white); border: 0; width: 48px; height: 48px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; transition: background .2s; }
+  .lb-btn:hover { background: var(--gold); }
+  .lb-close { top: 20px; right: 20px; }
+  .lb-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+  .lb-next { right: 20px; top: 50%; transform: translateY(-50%); }
+
+  /* Testimonials */
+  #testimonials { background: var(--sand); }
+  .reviews { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 26px; }
+  .review { background: var(--white); padding: 32px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; }
+  .review::before { content: "\201C"; font-family: var(--serif); font-size: 5rem; color: var(--gold); opacity: .25; position: absolute; top: 2px; right: 24px; line-height: 1; }
+  .stars { color: var(--gold); letter-spacing: 3px; margin-bottom: 14px; }
+  .review p { font-family: var(--serif); font-size: 1.12rem; font-style: italic; margin-bottom: 20px; }
+  .reviewer { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: #e3c48f; display: grid; place-items: center; font-weight: 600; }
+  .reviewer small { display: block; color: var(--ink-soft); }
+
+  /* Contact */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; }
+  .contact-info p { color: var(--ink-soft); margin-bottom: 28px; }
+  .info-item { display: flex; gap: 14px; margin-bottom: 20px; }
+  .info-item svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.6; flex-shrink: 0; margin-top: 2px; }
+  .info-item strong { display: block; font-weight: 600; }
+  .info-item span { color: var(--ink-soft); font-size: .92rem; }
+  .contact-form { background: var(--white); padding: 36px; border-radius: var(--radius); box-shadow: var(--shadow); display: grid; gap: 18px; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .contact-form textarea { min-height: 130px; resize: vertical; }
+
+  /* Footer */
+  footer { background: #12110f; color: rgba(255,255,255,.65); padding: 64px 0 28px; font-size: .92rem; }
+  .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.3fr; gap: 40px; margin-bottom: 44px; }
+  footer h4 { color: var(--white); font-family: var(--serif); font-weight: 500; font-size: 1.1rem; margin-bottom: 14px; }
+  footer ul { list-style: none; display: grid; gap: 8px; }
+  footer a:hover { color: #e3c48f; }
+  .newsletter { display: flex; margin-top: 12px; }
+  .newsletter input { flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); color: var(--white); border-radius: 999px 0 0 999px; font: inherit; }
+  .newsletter button { border-radius: 0 999px 999px 0; padding: 12px 18px; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: .82rem; }
+
+  /* Modal & toast */
+  .modal { position: fixed; inset: 0; z-index: 90; background: rgba(10,10,12,.6); display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal.open { display: flex; animation: fade .25s ease; }
+  .modal-card { background: var(--white); border-radius: var(--radius); max-width: 460px; width: 100%; padding: 34px; box-shadow: var(--shadow-lg); animation: pop .3s ease; }
+  .modal-card h3 { font-size: 1.7rem; margin-bottom: 6px; }
+  .summary { margin: 20px 0; border-top: 1px solid #eee7db; }
+  .summary div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee7db; font-size: .95rem; }
+  .summary .total { font-weight: 600; font-size: 1.1rem; border-bottom: 0; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; }
+  .modal-actions .btn-outline { color: var(--ink); }
+  .modal-card { position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
+  .modal-x { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--sand); cursor: pointer; font-size: .9rem; }
+  .modal-x:hover { background: var(--gold); color: var(--white); }
+  .muted { color: var(--ink-soft); font-size: .93rem; }
+  .hint { color: #b3402e; font-size: .85rem; margin: -8px 0 14px; min-height: 1em; }
+  .stack { display: grid; gap: 14px; margin: 18px 0 22px; }
+  .done { text-align: center; }
+  .done .check { width: 64px; height: 64px; border-radius: 50%; background: #e7f3ec; color: #2e7d4f; display: grid; place-items: center; font-size: 1.8rem; margin: 0 auto 14px; }
+  .done .ref { font-family: var(--serif); font-size: 2rem; color: var(--gold-dark); letter-spacing: .06em; margin: 2px 0 14px; }
+  .done .btn { margin-top: 22px; min-width: 160px; }
+  #manageResult .summary { margin-bottom: 16px; }
+  .status { text-transform: capitalize; }
+  .status.confirmed { color: #2e7d4f; }
+  .status.cancelled { color: #b3402e; }
+  .btn.danger { color: #b3402e; width: 100%; }
+  .btn.danger:hover { background: #b3402e; color: var(--white); }
+  .form-error { color: #b3402e; font-size: .9rem; margin-top: 14px; }
+  .btn[disabled] { opacity: .7; cursor: progress; transform: none; }
+  .spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .mode-badge { display: inline-flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #c9a227; }
+  .dot.live { background: #3ecf8e; box-shadow: 0 0 0 4px rgba(62,207,142,.2); }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 140%); background: var(--ink); color: var(--white); padding: 14px 24px; border-radius: 999px; box-shadow: var(--shadow-lg); z-index: 120; transition: transform .4s, opacity .4s, visibility .4s; font-size: .92rem; opacity: 0; visibility: hidden; max-width: calc(100% - 32px); text-align: center; }
+  .toast.show { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
+  .to-top { position: fixed; right: 22px; bottom: 22px; width: 46px; height: 46px; border-radius: 50%; border: 0; background: var(--gold); color: var(--white); font-size: 1.2rem; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; z-index: 40; }
+  .to-top.show { opacity: 1; pointer-events: auto; }
+  .to-top:hover { transform: translateY(-3px); }
+
+  /* Reveal animation */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes pop { from { transform: scale(.94); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .booking form { grid-template-columns: 1fr 1fr; }
+    .booking form .btn { grid-column: span 2; }
+    .about-grid, .exp, .contact-grid { grid-template-columns: 1fr; gap: 36px; }
+    .exp:nth-child(even) .exp-img { order: 0; }
+    .about-badge { right: 16px; }
+    .gallery { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 180px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 760px) {
+    .menu-toggle { display: block; }
+    .nav-links { position: fixed; inset: 0 0 0 auto; width: min(300px, 80%); background: var(--cream); color: var(--ink); flex-direction: column; align-items: flex-start; padding: 90px 32px; gap: 22px; transform: translateX(100%); transition: transform .35s ease; box-shadow: -10px 0 40px rgba(0,0,0,.15); }
+    .menu-open .nav-links { transform: none; }
+    .menu-open header { color: var(--ink); }
+    .menu-toggle { position: relative; z-index: 60; }
+    section { padding: 72px 0; }
+    .row-2, .stats { grid-template-columns: 1fr; }
+    .stats { gap: 14px; }
+  }
+  @media (max-width: 520px) {
+    .booking form { grid-template-columns: 1fr; }
+    .booking form .btn { grid-column: auto; }
+    .gallery { grid-template-columns: 1fr; }
+    .gallery .wide { grid-column: auto; }
+    .gallery .tall { grid-row: auto; }
+    .gallery .full { grid-column: auto; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .contact-form { padding: 24px; }
+  }
+</style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to Luxury Stays</h1>
-        <nav>
-            <ul>
-                <li><a href="#rooms">Rooms</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#gallery">Gallery</a></li>
-                <li><a href="#testimonials">Testimonials</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <section id="rooms">
-        <h2>Our Rooms</h2>
-        <div class="room-container">
-            <div class="room">
-                <img src="https://media.istockphoto.com/id/173587041/photo/hotel-bedroom.jpg?s=612x612&w=0&k=20&c=mzbT-i0sbivf2hK4aAJi0mdYVTUca8o5vij0bJq97Ks=" alt="Deluxe Room">
-                <h3>Deluxe Room</h3>
-                <p>Experience luxury like never before.</p>
-                <button>Book Now</button>
-            </div>
-            <div class="room">
-                <img src="https://t3.ftcdn.net/jpg/02/71/08/28/360_F_271082810_CtbTjpnOU3vx43ngAKqpCPUBx25udBrg.jpg" alt="Suite">
-                <h3>Suite</h3>
-                <p>Spacious and comfortable stay.</p>
-                <button>Book Now</button>
-            </div>
-            <div class="room">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLEspD5Ify1QBrTxXAwZPGVUV8v49LdCjrrA&s" alt="Presidential Suite">
-                <h3>Presidential Suite</h3>
-                <p>The ultimate luxury experience.</p>
-                <button>Book Now</button>
-            </div>
+
+<header id="header">
+  <nav class="container nav" aria-label="Main">
+    <a href="#home" class="logo">Luxury <span>Stays</span></a>
+    <button class="menu-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#rooms">Rooms</a></li>
+      <li><a href="#amenities">Amenities</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#" data-manage>My Booking</a></li>
+      <li><a href="#booking" class="btn btn-gold">Book Now</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" id="home">
+    <div class="container hero-content">
+      <span class="eyebrow">Boutique Resort &amp; Spa</span>
+      <h1>Where every stay becomes a <em>story</em></h1>
+      <p>Ocean-view suites, an infinity pool at sunset and award-winning dining, all a short walk from the beach.</p>
+      <div class="hero-actions">
+        <a href="#rooms" class="btn btn-gold">Explore Rooms</a>
+        <a href="#gallery" class="btn btn-outline">View Gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="booking container" id="booking">
+    <form id="bookingForm" novalidate>
+      <div class="field">
+        <label for="checkin">Check-in</label>
+        <input type="date" id="checkin" required>
+      </div>
+      <div class="field">
+        <label for="checkout">Check-out</label>
+        <input type="date" id="checkout" required>
+      </div>
+      <div class="field">
+        <label for="guests">Guests</label>
+        <select id="guests">
+          <option value="1">1 Guest</option>
+          <option value="2" selected>2 Guests</option>
+          <option value="3">3 Guests</option>
+          <option value="4">4 Guests</option>
+          <option value="5">5+ Guests</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="roomType">Room</label>
+        <select id="roomType"></select>
+      </div>
+      <button type="submit" class="btn btn-dark">Check Availability</button>
+    </form>
+  </div>
+
+  <section id="about">
+    <div class="container about-grid">
+      <div class="about-img reveal">
+        <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=900&q=75&auto=format&fit=crop" alt="Private deck with an outdoor bed overlooking mountains and a lake" loading="lazy">
+        <div class="about-badge"><strong>15+</strong>Years of hospitality</div>
+      </div>
+      <div class="about-text reveal">
+        <span class="eyebrow">Welcome</span>
+        <h2>A quiet escape, crafted for comfort</h2>
+        <p>Luxury Stays blends warm, personal service with thoughtfully designed spaces. Every room opens to natural light, every meal uses fresh local produce, and every detail is there to help you slow down.</p>
+        <p>Whether it's a weekend getaway, a honeymoon or a business trip, our team is ready around the clock to make your stay effortless.</p>
+        <div class="stats">
+          <div><strong data-count="120" data-suffix="+">0</strong><span>Elegant rooms</span></div>
+          <div><strong data-count="4.9" data-decimals="1">0</strong><span>Guest rating</span></div>
+          <div><strong data-count="24">0</strong><span>Hour concierge</span></div>
         </div>
-    </section>
-    
-    <section id="services">
-        <h2>Our Services</h2>
-        <div class="services-container">
-            <div class="service">24/7 Room Service</div>
-            <div class="service">Free WiFi</div>
-            <div class="service">Swimming Pool</div>
-            <div class="service">Spa & Wellness</div>
-            <div class="service">Airport Pickup & Drop</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rooms">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Accommodation</span>
+        <h2>Rooms &amp; Suites</h2>
+        <p>Four room types, each with premium bedding, rain showers and complimentary breakfast.</p>
+      </div>
+      <div class="rooms-grid" id="roomsGrid"></div>
+    </div>
+  </section>
+
+  <section id="amenities">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Services</span>
+        <h2>Everything you need, nothing you don't</h2>
+      </div>
+      <div class="amenities">
+        <div class="amenity reveal"><svg viewBox="0 0 24 24"><path d="M3 11h18M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M4 11l1 8h14l1-8M9 15h6"/></svg><h3>24/7 Room Service</h3><p>Order from our full menu at any hour, delivered straight to your door.</p></div>
+        <div class="amenity reveal"><svg viewBox="0 0 24 24"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/></svg><h3>High-Speed Wi-Fi</h3><p>Free fibre internet in every room and across the whole property.</p></div>
+        <div class="amenity reveal"><svg viewBox="0 0 24 24"><path d="M2 18c2 0 2-1.5 4-1.5S8 18 10 18s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M2 14c2 0 2-1.5 4-1.5S8 14 10 14s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M8 12V5a2 2 0 0 1 4 0M16 12V5a2 2 0 0 0-4 0"/></svg><h3>Infinity Pool</h3><p>A heated pool overlooking the ocean, open from sunrise to midnight.</p></div>
+        <div class="amenity reveal"><svg viewBox="0 0 24 24"><path d="M12 21c-4-2-7-5.5-7-10a7 7 0 0 1 7-7 7 7 0 0 1 7 7c0 4.5-3 8-7 10zM12 8v6M9 11h6"/></svg><h3>Spa &amp; Wellness</h3><p>Massages, steam rooms and a fully equipped fitness studio.</p></div>
+        <div class="amenity reveal"><svg viewBox="0 0 24 24"><path d="M2 16h20M6 16l2-9h8l2 9M10 7V4h4v3M5 20h14"/></svg><h3>Airport Transfers</h3><p>Private pickup and drop-off in comfortable chauffeur-driven cars.</p></div>
+        <div class="amenity reveal"><svg viewBox="0 0 24 24"><path d="M4 3v8a3 3 0 0 0 3 3v7M7 3v6M10 3v8a3 3 0 0 1-3 3M17 21V3c-2 0-3 3-3 7s1 4 3 4"/></svg><h3>Fine Dining</h3><p>Two restaurants and a rooftop bar serving seasonal, local cuisine.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experiences">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Experiences</span>
+        <h2>Make the most of your stay</h2>
+        <p>Unwind, indulge and explore, all without leaving the resort.</p>
+      </div>
+      <div class="exp reveal">
+        <div class="exp-img"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1000&q=75&auto=format&fit=crop" alt="Turquoise pool surrounded by tropical gardens and mountains" loading="lazy"></div>
+        <div>
+          <span class="eyebrow">Pool &amp; Gardens</span>
+          <h3>Swim between the palms</h3>
+          <p>Our lagoon-style pool winds through landscaped tropical gardens, with cabanas, a swim-up bar and loungers in sun or shade.</p>
+          <ul><li>Private cabanas on request</li><li>Kids' pool and splash area</li><li>Poolside cocktails until late</li></ul>
         </div>
-    </section>
-    
-    <section id="gallery">
-        <h2>Gallery</h2>
-        <div class="gallery-container">
-            <div class="gallery-item"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpS6Uc4_4ytgAH2GqNl8Y3N-c9PFbucgCTqg&s" alt="Hotel Lobby"></div>
-            <div class="gallery-item"><img src="data:image/jpeg;base64,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" alt="Swimming Pool"></div>
-            <div class="gallery-item"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThIldVhP0b8zXQz6nYYCobS5P2BMTDrAC95w&s" alt="Restaurant"></div>
+      </div>
+      <div class="exp reveal">
+        <div class="exp-img"><img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1000&q=75&auto=format&fit=crop" alt="Guest enjoying an aromatherapy massage at the spa" loading="lazy"></div>
+        <div>
+          <span class="eyebrow">Spa</span>
+          <h3>Rest, restore, repeat</h3>
+          <p>Signature massages with locally made oils, couples' suites and a quiet relaxation lounge with herbal teas.</p>
+          <ul><li>60 and 90-minute treatments</li><li>Steam room and sauna</li><li>Morning yoga on the deck</li></ul>
         </div>
-    </section>
-    
-    <section id="testimonials">
-        <h2>Guest Testimonials</h2>
-        <div class="testimonial-container">
-            <div class="testimonial">"The best hotel experience ever!" - John D.</div>
-            <div class="testimonial">"Exceptional service and ambiance!" - Sarah K.</div>
-            <div class="testimonial">"Loved the food and hospitality!" - Mike L.</div>
+      </div>
+      <div class="exp reveal">
+        <div class="exp-img"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1000&q=75&auto=format&fit=crop" alt="Plated gourmet dish on a candlelit restaurant table" loading="lazy"></div>
+        <div>
+          <span class="eyebrow">Dining</span>
+          <h3>A table worth travelling for</h3>
+          <p>From slow breakfasts to candlelit tasting menus, our chefs cook with what's fresh from the market each morning.</p>
+          <ul><li>Daily breakfast included</li><li>Seven-course chef's tasting menu</li><li>Vegetarian and vegan options</li></ul>
         </div>
-    </section>
-    
-    <section id="contact">
-        <h2>Contact Us</h2>
-        <form>
-            <input type="text" placeholder="Your Name" required>
-            <input type="email" placeholder="Your Email" required>
-            <textarea placeholder="Your Message" required></textarea>
-            <button type="submit">Send</button>
-        </form>
-    </section>
-    
-    <script>
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', () => {
-                alert('Booking functionality coming soon!');
-            });
-        });
-    </script>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Gallery</span>
+        <h2>A glimpse of Luxury Stays</h2>
+      </div>
+      <div class="gallery" id="galleryGrid"></div>
+    </div>
+  </section>
+
+  <section id="testimonials">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Reviews</span>
+        <h2>What our guests say</h2>
+      </div>
+      <div class="reviews">
+        <div class="review reveal"><div class="stars">★★★★★</div><p>"The best hotel experience we've ever had. The staff remembered our names from day one."</p><div class="reviewer"><div class="avatar">AR</div><div><strong>Ananya R.</strong><small>Honeymoon · Executive Suite</small></div></div></div>
+        <div class="review reveal"><div class="stars">★★★★★</div><p>"Exceptional service and a stunning pool. Waking up to that view was worth every rupee."</p><div class="reviewer"><div class="avatar">DK</div><div><strong>Daniel K.</strong><small>Family trip · Premier Room</small></div></div></div>
+        <div class="review reveal"><div class="stars">★★★★★</div><p>"Loved the food and the spa. The chef's tasting menu was the highlight of our trip."</p><div class="reviewer"><div class="avatar">MS</div><div><strong>Meera S.</strong><small>Weekend getaway · Deluxe Room</small></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="container contact-grid">
+      <div class="contact-info reveal">
+        <span class="eyebrow">Contact</span>
+        <h2>We'd love to hear from you</h2>
+        <p>Questions about rooms, events or special requests? Send us a message and our team will reply within 24 hours.</p>
+        <div class="info-item"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><div><strong>Address</strong><span>12 Coastal Road, Palm Bay, Goa 403001</span></div></div>
+        <div class="info-item"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg><div><strong>Phone</strong><span>+91 98765 43210</span></div></div>
+        <div class="info-item"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><div><strong>Email</strong><span>stay@luxurystays.example</span></div></div>
+        <div class="info-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><strong>Check-in / Check-out</strong><span>From 2:00 PM · Until 11:00 AM</span></div></div>
+      </div>
+      <form class="contact-form reveal" id="contactForm" novalidate>
+        <div class="row-2">
+          <div class="field"><label for="name">Name</label><input id="name" type="text" placeholder="Your name" required><span class="error">Please enter your name.</span></div>
+          <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="you@example.com" required><span class="error">Please enter a valid email.</span></div>
+        </div>
+        <div class="field"><label for="subject">Subject</label>
+          <select id="subject"><option>Room booking</option><option>Events &amp; weddings</option><option>Spa appointment</option><option>Other</option></select>
+        </div>
+        <div class="field"><label for="message">Message</label><textarea id="message" placeholder="How can we help?" required minlength="10"></textarea><span class="error">Message must be at least 10 characters.</span></div>
+        <button type="submit" class="btn btn-gold">Send Message</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="#home" class="logo" style="color:#fff">Luxury <span>Stays</span></a>
+        <p style="margin-top:12px;max-width:280px">A boutique resort and spa by the sea. Thoughtful service, beautiful spaces, unforgettable stays.</p>
+      </div>
+      <div><h4>Explore</h4><ul><li><a href="#rooms">Rooms &amp; Suites</a></li><li><a href="#amenities">Amenities</a></li><li><a href="#experiences">Experiences</a></li><li><a href="#gallery">Gallery</a></li></ul></div>
+      <div><h4>Guests</h4><ul><li><a href="#booking">Book a stay</a></li><li><a href="#" data-manage>Manage booking</a></li><li><a href="#testimonials">Reviews</a></li><li><a href="#contact">Contact us</a></li></ul></div>
+      <div>
+        <h4>Newsletter</h4>
+        <p>Seasonal offers, straight to your inbox.</p>
+        <form class="newsletter" id="newsletterForm"><input type="email" placeholder="Email address" aria-label="Email address" required><button class="btn btn-gold" type="submit">Join</button></form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Luxury Stays. Demo project by <a href="https://github.com/rounak251">Rounak Choudhary</a>.</span>
+      <span id="modeBadge" class="mode-badge"><span class="dot"></span>Checking booking system…</span>
+      <span>Photos: <a href="https://unsplash.com">Unsplash</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <button class="modal-x" data-close aria-label="Close">✕</button>
+    <div data-step="summary">
+      <span class="eyebrow">Good news</span>
+      <h3 id="modalTitle">Your room is available</h3>
+      <p class="muted">Here's a summary of your stay.</p>
+      <div class="summary" id="summary"></div>
+      <p class="hint" id="roomsLeft"></p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" data-close>Edit dates</button>
+        <button class="btn btn-gold" type="button" id="toDetails">Continue</button>
+      </div>
+    </div>
+    <form data-step="details" id="guestForm" novalidate hidden>
+      <span class="eyebrow">Step 2 of 2</span>
+      <h3>Guest details</h3>
+      <p class="muted">We'll send your confirmation to this email.</p>
+      <div class="stack">
+        <div class="field"><label for="guestName">Full name</label><input id="guestName" required minlength="2" autocomplete="name"><span class="error">Please enter your full name.</span></div>
+        <div class="field"><label for="guestEmail">Email</label><input id="guestEmail" type="email" required autocomplete="email"><span class="error">Please enter a valid email.</span></div>
+        <div class="field"><label for="guestPhone">Phone (optional)</label><input id="guestPhone" type="tel" autocomplete="tel"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" id="backToSummary">Back</button>
+        <button class="btn btn-gold" type="submit" id="confirmBooking">Confirm Booking</button>
+      </div>
+    </form>
+    <div data-step="done" class="done" hidden>
+      <div class="check">✓</div>
+      <h3>Booking confirmed</h3>
+      <p class="muted">Your reference</p>
+      <p class="ref" id="bookingRef"></p>
+      <p class="muted" id="confirmText"></p>
+      <button class="btn btn-dark" type="button" data-close>Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="manageModal" role="dialog" aria-modal="true" aria-labelledby="manageTitle">
+  <div class="modal-card">
+    <button class="modal-x" data-close aria-label="Close">✕</button>
+    <span class="eyebrow">Manage booking</span>
+    <h3 id="manageTitle">Find your booking</h3>
+    <p class="muted">Enter the reference from your confirmation and the email you booked with.</p>
+    <form id="lookupForm" class="stack" novalidate>
+      <div class="field"><label for="lookupRef">Booking reference</label><input id="lookupRef" required placeholder="LS-1A2B3C" autocapitalize="characters"><span class="error">Please enter your reference.</span></div>
+      <div class="field"><label for="lookupEmail">Email</label><input id="lookupEmail" type="email" required><span class="error">Please enter a valid email.</span></div>
+      <button class="btn btn-dark" type="submit">Find booking</button>
+    </form>
+    <div id="manageResult"></div>
+  </div>
+</div>
+
+<figure class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <button class="lb-btn lb-close" aria-label="Close">✕</button>
+  <button class="lb-btn lb-prev" aria-label="Previous image">‹</button>
+  <div><img id="lbImg" alt=""><figcaption id="lbCaption"></figcaption></div>
+  <button class="lb-btn lb-next" aria-label="Next image">›</button>
+</figure>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+  // Set this to your deployed backend (e.g. "https://luxury-stays.onrender.com") to take live
+  // bookings from GitHub Pages. When the page is served by the backend itself it's used automatically.
+  const BACKEND_URL = "";
+  const API_BASE = location.protocol.startsWith("http") && !location.hostname.endsWith("github.io") ? "" : BACKEND_URL;
+  let live = false;
+
+  const img = (id, w) => `https://images.unsplash.com/photo-${id}?w=${w}&q=75&auto=format&fit=crop`;
+
+  const ROOMS = [
+    { slug: "deluxe", name: "Deluxe Room", price: 6500, size: "32 m²", guests: 2, photo: "1631049307264-da0ec9d70304",
+      text: "Bright, calm and quietly elegant, with a king bed and a work desk by the window.", perks: ["King bed", "City view", "Rain shower"] },
+    { slug: "premier", name: "Premier Room", price: 8900, size: "40 m²", guests: 3, photo: "1618773928121-c32242e63f39",
+      text: "Extra space to spread out, with a lounge corner and a deep soaking tub.", perks: ["King bed", "Soaking tub", "Mini bar"] },
+    { slug: "executive", name: "Executive Suite", price: 14500, size: "62 m²", guests: 4, photo: "1590490360182-c33d57733427",
+      text: "A separate living room, a dressing area and lounge access for two.", perks: ["Living room", "Lounge access", "Butler"] },
+    { slug: "presidential", name: "Presidential Suite", price: 28000, size: "120 m²", guests: 4, photo: "1578683010236-d716f9a3f461",
+      text: "Floor-to-ceiling glass, a private terrace and a dedicated butler.", perks: ["Terrace", "Ocean view", "Private chef"] },
+  ];
+
+  const GALLERY = [
+    { id: "1566073771259-6a8506099945", alt: "Infinity pool beside the timber lodge", cls: "wide" },
+    { id: "1611892440504-42a792e24d32", alt: "Warmly lit suite with garden view", cls: "tall" },
+    { id: "1540541338287-41700207dee6", alt: "Clifftop pool overlooking the ocean" },
+    { id: "1571896349842-33c89424de2d", alt: "Restaurant terrace reflected in the pool at dusk" },
+    { id: "1582719478250-c89cae4dc85b", alt: "Bedroom opening onto a sunlit balcony" },
+    { id: "1584132967334-10e028bd69f7", alt: "Pool deck by the sea" },
+    { id: "1551882547-ff40c63fe5fa", alt: "Palm-lined pool at dusk", cls: "full" },
+  ];
+
+  const inr = n => "₹" + Number(n).toLocaleString("en-IN");
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const fmtDate = s => parse(s).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+  // ---------- API ----------
+  async function api(path, options = {}) {
+    const resp = await fetch(API_BASE + path, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.error || "Something went wrong. Please try again.");
+    return data;
+  }
+
+  async function detectBackend() {
+    if (API_BASE === "" && !location.protocol.startsWith("http")) return setMode(false);
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 4000);
+      const resp = await fetch(API_BASE + "/api/health", { signal: ctrl.signal });
+      setMode(resp.ok);
+    } catch { setMode(false); }
+  }
+
+  function setMode(isLive) {
+    live = isLive;
+    $("#modeBadge").innerHTML = isLive
+      ? '<span class="dot live"></span>Live booking system'
+      : '<span class="dot"></span>Demo mode: bookings are not saved';
+  }
+
+  async function withLoading(button, label, fn) {
+    const original = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = `<span class="spinner"></span>${label}`;
+    try { return await fn(); } finally { button.disabled = false; button.innerHTML = original; }
+  }
+
+  // Same pricing rules as the backend, used in demo mode.
+  function localQuote({ room, checkin, checkout, guests }) {
+    const r = ROOMS.find(x => x.slug === room);
+    const nights = Math.round((parse(checkout) - parse(checkin)) / 86400000);
+    if (parse(checkin) < parse(iso(new Date()))) throw new Error("Check-in can't be in the past.");
+    if (nights < 1) throw new Error("Check-out must be at least one day after check-in.");
+    if (nights > 30) throw new Error("Online bookings are limited to 30 nights. Please contact us for longer stays.");
+    if (guests > r.guests) throw new Error(`The ${r.name} sleeps up to ${r.guests} guests. Try a larger room.`);
+    const subtotal = nights * r.price, taxes = Math.round(subtotal * 0.18);
+    return { room, room_name: r.name, checkin, checkout, guests, nights, price_per_night: r.price,
+             subtotal, taxes, total: subtotal + taxes, available: true, rooms_left: null };
+  }
+
+  // ---------- Rooms ----------
+  $("#roomsGrid").innerHTML = ROOMS.map(r => `
+    <article class="room reveal">
+      <div class="room-img"><img src="${img(r.photo, 700)}" alt="${r.name}" loading="lazy"><span class="price-tag"><strong>${inr(r.price)}</strong> / night</span></div>
+      <div class="room-body">
+        <h3>${r.name}</h3>
+        <div class="room-meta"><span>📐 ${r.size}</span><span>👤 Up to ${r.guests} guests</span></div>
+        <p>${r.text}</p>
+        <div class="chips">${r.perks.map(p => `<span class="chip">${p}</span>`).join("")}</div>
+        <button class="btn btn-dark" data-room="${r.slug}">Book this room</button>
+      </div>
+    </article>`).join("");
+  $("#roomType").innerHTML = ROOMS.map(r => `<option value="${r.slug}">${r.name} · ${inr(r.price)}</option>`).join("");
+  document.querySelectorAll("[data-room]").forEach(b => b.addEventListener("click", () => {
+    $("#roomType").value = b.dataset.room;
+    $("#booking").scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => $("#checkin").focus({ preventScroll: true }), 500);
+  }));
+
+  // ---------- Gallery + lightbox ----------
+  $("#galleryGrid").innerHTML = GALLERY.map((g, i) =>
+    `<button class="${g.cls || ""} reveal" data-index="${i}" aria-label="Open image: ${g.alt}"><img src="${img(g.id, g.cls === "full" ? 1400 : 800)}" alt="${g.alt}" loading="lazy"></button>`).join("");
+  let current = 0;
+  const lightbox = $("#lightbox");
+  const showImage = i => {
+    current = (i + GALLERY.length) % GALLERY.length;
+    $("#lbImg").src = img(GALLERY[current].id, 1600);
+    $("#lbImg").alt = GALLERY[current].alt;
+    $("#lbCaption").textContent = `${GALLERY[current].alt} (${current + 1}/${GALLERY.length})`;
+  };
+  document.querySelectorAll("[data-index]").forEach(b => b.addEventListener("click", () => { showImage(+b.dataset.index); lightbox.classList.add("open"); }));
+  const closeLightbox = () => lightbox.classList.remove("open");
+  lightbox.querySelector(".lb-close").onclick = closeLightbox;
+  lightbox.querySelector(".lb-prev").onclick = () => showImage(current - 1);
+  lightbox.querySelector(".lb-next").onclick = () => showImage(current + 1);
+  lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
+
+  // ---------- Booking flow: dates -> quote -> guest details -> confirmation ----------
+  const today = new Date();
+  $("#checkin").min = iso(today);
+  $("#checkin").value = iso(addDays(today, 1));
+  $("#checkout").value = iso(addDays(today, 3));
+  const syncCheckout = () => {
+    const min = iso(addDays(parse($("#checkin").value), 1));
+    $("#checkout").min = min;
+    if ($("#checkout").value < min) $("#checkout").value = min;
+  };
+  $("#checkin").addEventListener("change", syncCheckout);
+  syncCheckout();
+
+  const modal = $("#bookingModal");
+  let currentQuote = null;
+  const showStep = step => modal.querySelectorAll("[data-step]").forEach(el => el.hidden = el.dataset.step !== step);
+  const openModal = m => { m.classList.add("open"); document.body.style.overflow = "hidden"; };
+  const closeModals = () => { document.querySelectorAll(".modal.open").forEach(m => m.classList.remove("open")); document.body.style.overflow = ""; };
+
+  function renderSummary(q) {
+    $("#summary").innerHTML = `
+      <div><span>Room</span><span>${esc(q.room_name)}</span></div>
+      <div><span>Dates</span><span>${fmtDate(q.checkin)} → ${fmtDate(q.checkout)}</span></div>
+      <div><span>Guests</span><span>${q.guests}</span></div>
+      <div><span>${q.nights} night${q.nights > 1 ? "s" : ""} × ${inr(q.price_per_night)}</span><span>${inr(q.subtotal)}</span></div>
+      <div><span>Taxes (18% GST)</span><span>${inr(q.taxes)}</span></div>
+      <div class="total"><span>Total</span><span>${inr(q.total)}</span></div>`;
+    $("#roomsLeft").textContent = q.rooms_left !== null && q.rooms_left <= 3 ? `Only ${q.rooms_left} left for these dates. Book soon!` : "";
+  }
+
+  $("#bookingForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!$("#checkin").value || !$("#checkout").value) return toast("Please choose your check-in and check-out dates.");
+    const request = { room: $("#roomType").value, checkin: $("#checkin").value, checkout: $("#checkout").value, guests: +$("#guests").value };
+    withLoading(e.submitter || e.target.querySelector("button"), "Checking…", async () => {
+      try {
+        const q = live ? await api("/api/availability", { method: "POST", body: request }) : localQuote(request);
+        if (!q.available) return toast(`Sorry, the ${q.room_name} is fully booked for those dates. Try other dates or rooms.`);
+        currentQuote = q;
+        renderSummary(q);
+        showStep("summary");
+        openModal(modal);
+      } catch (err) { toast(err.message); }
+    });
+  });
+
+  $("#toDetails").addEventListener("click", () => { showStep("details"); setTimeout(() => $("#guestName").focus(), 50); });
+  $("#backToSummary").addEventListener("click", () => showStep("summary"));
+
+  $("#guestForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!validate(e.target)) return;
+    const payload = { ...currentQuote, name: $("#guestName").value.trim(), email: $("#guestEmail").value.trim(), phone: $("#guestPhone").value.trim() };
+    withLoading(e.submitter || $("#confirmBooking"), "Booking…", async () => {
+      try {
+        const booking = live
+          ? await api("/api/bookings", { method: "POST", body: payload })
+          : { ref: "DEMO-" + Math.random().toString(36).slice(2, 8).toUpperCase(), email: payload.email, total: currentQuote.total };
+        $("#bookingRef").textContent = booking.ref;
+        $("#confirmText").innerHTML = live
+          ? `A confirmation for <strong>${esc(currentQuote.room_name)}</strong> has been recorded for <strong>${esc(booking.email)}</strong>. Keep your reference to view or cancel your booking.`
+          : "This is demo mode, so the booking wasn't saved. Run the backend to take real bookings.";
+        showStep("done");
+        e.target.reset();
+      } catch (err) { toast(err.message); }
+    });
+  });
+
+  // ---------- Manage booking ----------
+  const manageModal = $("#manageModal");
+  document.querySelectorAll("[data-manage]").forEach(a => a.addEventListener("click", e => {
+    e.preventDefault(); closeMenu();
+    $("#manageResult").innerHTML = "";
+    openModal(manageModal);
+    setTimeout(() => $("#lookupRef").focus(), 50);
+  }));
+  let lookedUp = null;
+  function renderBooking(b) {
+    lookedUp = b;
+    $("#manageResult").innerHTML = `
+      <div class="summary">
+        <div><span>Reference</span><span>${esc(b.ref)}</span></div>
+        <div><span>Room</span><span>${esc(b.room_name)}</span></div>
+        <div><span>Dates</span><span>${fmtDate(b.checkin)} → ${fmtDate(b.checkout)}</span></div>
+        <div><span>Guests</span><span>${b.guests}</span></div>
+        <div><span>Total</span><span>${inr(b.total)}</span></div>
+        <div class="total"><span>Status</span><span class="status ${esc(b.status)}">${esc(b.status)}</span></div>
+      </div>
+      ${b.status === "confirmed" ? '<button class="btn btn-outline danger" id="cancelBooking" type="button">Cancel this booking</button>' : ""}`;
+    $("#cancelBooking")?.addEventListener("click", ev => {
+      if (!confirm("Cancel this booking? This can't be undone.")) return;
+      withLoading(ev.currentTarget, "Cancelling…", async () => {
+        try {
+          renderBooking(await api(`/api/bookings/${encodeURIComponent(lookedUp.ref)}/cancel`, { method: "POST", body: { email: lookedUp.email } }));
+          toast("Your booking has been cancelled.");
+        } catch (err) { toast(err.message); }
+      });
+    });
+  }
+  $("#lookupForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!validate(e.target)) return;
+    if (!live) return toast("Booking lookup needs the backend. Run it locally to try it.");
+    withLoading(e.submitter || e.target.querySelector("button"), "Searching…", async () => {
+      try {
+        renderBooking(await api(`/api/bookings/${encodeURIComponent($("#lookupRef").value.trim())}?email=${encodeURIComponent($("#lookupEmail").value.trim())}`));
+      } catch (err) { $("#manageResult").innerHTML = `<p class="form-error">${esc(err.message)}</p>`; }
+    });
+  });
+
+  document.querySelectorAll(".modal").forEach(m => m.addEventListener("click", e => {
+    if (e.target === m || e.target.closest("[data-close]")) closeModals();
+  }));
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") { closeModals(); closeLightbox(); closeMenu(); }
+    if (lightbox.classList.contains("open") && e.key === "ArrowRight") showImage(current + 1);
+    if (lightbox.classList.contains("open") && e.key === "ArrowLeft") showImage(current - 1);
+  });
+
+  // ---------- Forms ----------
+  function validate(form) {
+    let ok = true;
+    form.querySelectorAll("input[required], textarea[required]").forEach(el => {
+      const valid = el.checkValidity() && el.value.trim().length > 0;
+      el.closest(".field")?.classList.toggle("invalid", !valid);
+      ok = ok && valid;
+    });
+    return ok;
+  }
+  document.querySelectorAll("form").forEach(f => f.addEventListener("input", e => e.target.closest(".field")?.classList.remove("invalid")));
+
+  $("#contactForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!validate(e.target)) return;
+    const payload = { name: $("#name").value.trim(), email: $("#email").value.trim(), subject: $("#subject").value, message: $("#message").value.trim() };
+    withLoading(e.submitter || e.target.querySelector("button"), "Sending…", async () => {
+      try {
+        if (live) await api("/api/contact", { method: "POST", body: payload });
+        toast(`Thanks, ${payload.name.split(" ")[0]}! We'll reply within 24 hours.`);
+        e.target.reset();
+      } catch (err) { toast(err.message); }
+    });
+  });
+
+  $("#newsletterForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const email = e.target.querySelector("input").value.trim();
+    withLoading(e.submitter || e.target.querySelector("button"), "", async () => {
+      try {
+        const res = live ? await api("/api/subscribe", { method: "POST", body: { email } }) : {};
+        toast(res.already_subscribed ? "You're already on the list. Thank you!" : "You're subscribed. Welcome aboard!");
+        e.target.reset();
+      } catch (err) { toast(err.message); }
+    });
+  });
+
+  // ---------- Toast ----------
+  let toastTimer;
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 4000);
+  }
+
+  // ---------- Header, mobile menu, back-to-top ----------
+  const onScroll = () => {
+    $("#header").classList.toggle("scrolled", scrollY > 40);
+    $("#toTop").classList.toggle("show", scrollY > 700);
+  };
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+  $("#toTop").onclick = () => scrollTo({ top: 0, behavior: "smooth" });
+  const toggle = $(".menu-toggle");
+  function closeMenu() { document.body.classList.remove("menu-open"); toggle.setAttribute("aria-expanded", "false"); }
+  toggle.addEventListener("click", () => toggle.setAttribute("aria-expanded", document.body.classList.toggle("menu-open")));
+  document.querySelectorAll(".nav-links a").forEach(a => a.addEventListener("click", closeMenu));
+
+  // ---------- Scroll reveal + stat counters ----------
+  const countUp = el => {
+    const target = +el.dataset.count, dec = +(el.dataset.decimals || 0), suffix = el.dataset.suffix || "", start = performance.now();
+    const step = now => {
+      const p = Math.min((now - start) / 1400, 1);
+      el.textContent = (target * (1 - Math.pow(1 - p, 3))).toFixed(dec) + (p === 1 ? suffix : "");
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  const io = new IntersectionObserver(entries => entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    en.target.classList.add("visible");
+    en.target.querySelectorAll("[data-count]").forEach(countUp);
+    io.unobserve(en.target);
+  }), { threshold: 0.15 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  $("#year").textContent = new Date().getFullYear();
+  detectBackend();
+</script>
 </body>
 </html>
