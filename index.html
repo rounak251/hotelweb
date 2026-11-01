@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  // The preloader only runs when animation is welcome; the timeout lifts it even if a later script fails.
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.documentElement.classList.add("has-preloader", "is-loading");
+    setTimeout(() => document.documentElement.classList.remove("is-loading"), 8000);
+  }
+</script>
 <title>Luxury Stays | Boutique Resort & Spa</title>
 <meta name="description" content="Luxury Stays: a boutique resort with ocean-view rooms, an infinity pool, spa and fine dining. Check availability and book your stay.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -321,6 +328,100 @@
   @media (max-width: 520px) { .suite-stage { min-height: 360px; } .suite-info { padding: 24px; } }
   @media (max-width: 1100px) { .nav-links { gap: 20px; } }
 
+  /* ---------- 3D resort explorer ---------- */
+  .resort-wrap { position: relative; width: min(1400px, 100% - 40px); margin: 0 auto; }
+  .resort-stage { position: relative; height: min(84vh, 780px); min-height: 560px; border-radius: 26px; overflow: hidden; isolation: isolate;
+    background: linear-gradient(#4a7fd0, #f2dcb4 52%, #40c8c8 53%, #1d62a6); box-shadow: var(--shadow-lg); }
+  .resort-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1s; }
+  .resort-stage.is-3d canvas { opacity: 1; }
+  .resort-stage.is-3d { cursor: grab; }
+  .resort-stage.is-dragging { cursor: grabbing; }
+  .resort-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .resort-stage.is-3d .resort-fallback { display: none; }
+  .resort-pins { position: absolute; inset: 0; z-index: 2; pointer-events: none; display: none; }
+  .resort-stage.is-3d .resort-pins { display: block; }
+  .pin { position: absolute; left: 0; top: 0; translate: -50% calc(-100% - 16px); pointer-events: auto; display: flex; align-items: center; gap: 8px;
+    padding: 4px 12px 4px 4px; border: 0; border-radius: 999px; background: rgba(20,18,15,.72); color: var(--white); font: 500 .8rem var(--sans);
+    white-space: nowrap; cursor: pointer; backdrop-filter: blur(6px); transition: opacity .35s, background .25s, box-shadow .25s; will-change: transform; }
+  .pin::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 16px; background: linear-gradient(rgba(255,255,255,.85), rgba(255,255,255,0)); }
+  .pin b { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--gold); font-size: .72rem; transition: background .25s, color .25s; }
+  .pin:hover, .pin.is-hover, .pin.is-active { background: var(--gold); box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 1; }
+  .pin:hover b, .pin.is-hover b, .pin.is-active b { background: var(--white); color: var(--gold-dark); }
+  .pin.is-hidden:not(.is-active) { opacity: .3; }
+  .pin:focus-visible { outline: 2px solid var(--white); outline-offset: 2px; }
+  .resort-hint { position: absolute; left: 22px; top: 20px; z-index: 2; font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.9);
+    text-shadow: 0 1px 8px rgba(0,0,0,.4); pointer-events: none; }
+  .resort-hud { position: absolute; z-index: 3; left: 20px; right: 380px; bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; pointer-events: none; }
+  .resort-hud > * { pointer-events: auto; }
+  .resort-stage:not(.is-3d) :is(.resort-hud, .resort-hint) { display: none; }
+  .resort-time { flex: 1 1 300px; max-width: 470px; display: flex; align-items: center; gap: 12px; padding: 9px 18px; border-radius: 999px;
+    background: rgba(20,18,15,.7); color: var(--white); backdrop-filter: blur(8px); }
+  .resort-time label { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.6); white-space: nowrap; }
+  .resort-time input { flex: 1; min-width: 90px; accent-color: var(--gold); cursor: pointer; }
+  .resort-time output { min-width: 70px; text-align: right; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .rt-icon { width: 1.2em; text-align: center; font-size: 1.05rem; color: #e3c48f; }
+  .resort-ctrl { display: flex; gap: 8px; }
+  .resort-ctrl button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(20,18,15,.6); color: var(--white);
+    font-size: 1.05rem; cursor: pointer; backdrop-filter: blur(6px); transition: background .2s, border-color .2s; }
+  .resort-ctrl button:hover { background: var(--gold); border-color: var(--gold); }
+  .resort-panel { position: absolute; z-index: 3; top: 20px; right: 20px; bottom: 20px; width: 340px; display: flex; flex-direction: column; gap: 10px;
+    padding: 24px; border-radius: 20px; background: rgba(250,247,242,.9); backdrop-filter: blur(14px) saturate(1.2); box-shadow: var(--shadow-lg); overflow-y: auto; }
+  .rp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .rp-tour { padding: 7px 14px; border-radius: 999px; border: 1px solid #d9d1c4; background: var(--white); font: 500 .8rem var(--sans); color: var(--ink); cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+  .rp-tour:hover, .rp-tour[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--white); }
+  .rp-progress { height: 2px; border-radius: 2px; background: #e8e1d5; overflow: hidden; visibility: hidden; }
+  .rp-progress i { display: block; height: 100%; background: var(--gold); transform-origin: 0 50%; transform: scaleX(0); }
+  .rp-progress.run { visibility: visible; }
+  .rp-progress.run i { animation: tourbar var(--step, 7s) linear forwards; }
+  @keyframes tourbar { to { transform: scaleX(1); } }
+  .rp-card { animation: cardIn .5s ease both; }
+  @keyframes cardIn { from { opacity: 0; translate: 0 12px; } }
+  .rp-card h3 { font-size: 1.55rem; margin: 6px 0 6px; }
+  .rp-card p { color: var(--ink-soft); font-size: .92rem; }
+  .rp-facts { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 14px; }
+  .rp-facts li { padding: 4px 11px; border-radius: 999px; background: var(--sand); font-size: .76rem; }
+  .rp-card .btn { width: 100%; padding: 12px 18px; }
+  .rp-list { list-style: none; display: grid; gap: 1px; margin-top: auto; padding-top: 10px; border-top: 1px solid #e8e1d5; }
+  .rp-list button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 5px 10px; border: 0; border-radius: 10px; background: transparent;
+    font: 500 .88rem var(--sans); color: var(--ink); text-align: left; cursor: pointer; transition: background .2s, color .2s; }
+  .rp-list button b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid #d9d1c4; font-size: .7rem; }
+  .rp-list button:hover { background: rgba(176,141,87,.12); }
+  .rp-list button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+  .rp-list button[aria-pressed="true"] b { background: var(--gold); border-color: var(--gold); }
+  .rp-nav { display: flex; gap: 8px; }
+  .rp-nav button { flex: 1; padding: 9px; border-radius: 999px; border: 1px solid #d9d1c4; background: transparent; font: 500 .82rem var(--sans); color: var(--ink); cursor: pointer; transition: background .2s, color .2s; }
+  .rp-nav button:hover { background: var(--ink); color: var(--white); }
+  @media (max-width: 960px) {
+    .resort-stage { height: 68vh; min-height: 440px; }
+    .resort-panel { position: static; width: auto; margin-top: 14px; max-height: none; }
+    .resort-hud { right: 20px; }
+    .rp-list { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .resort-wrap { width: 100%; }
+    .resort-stage { border-radius: 0; min-height: 420px; }
+    .resort-panel { margin: 14px 20px 0; padding: 20px; }
+    .pin { padding-right: 4px; }
+    .pin span { display: none; }
+    .pin.is-active { padding-right: 12px; }
+    .pin.is-active span { display: inline; }
+    .resort-hud { left: 12px; right: 12px; bottom: 12px; }
+    .resort-time label { display: none; }
+    .resort-ctrl button { width: 38px; height: 38px; }
+  }
+
+  /* Live availability strip in the room tour */
+  .avail { margin: -6px 0 22px; }
+  .avail-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+  .avail-days { display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; }
+  .avail-days button { height: 52px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; padding: 4px 0; border: 0; border-radius: 6px;
+    background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); cursor: pointer; transition: background .2s; }
+  .avail-days button:hover:not(:disabled) { background: rgba(227,196,143,.22); }
+  .avail-days i { width: 55%; height: calc(4px + var(--a) * 24px); border-radius: 3px; background: linear-gradient(#e3c48f, var(--gold)); }
+  .avail-days button:disabled { opacity: .45; cursor: not-allowed; }
+  .avail-days button:disabled i { height: 4px; background: #c4553f; }
+  .avail-days small { font-size: .6rem; }
+
   /* ---------- Scroll-driven scenes ---------- */
   .scroll-progress { position: fixed; inset: 0 0 auto; height: 3px; z-index: 70; pointer-events: none; transform-origin: 0 50%; transform: scaleX(0);
     background: linear-gradient(90deg, var(--gold), #e3c48f); }
@@ -389,9 +490,53 @@
     .footer-grid { grid-template-columns: 1fr; }
     .contact-form { padding: 24px; }
   }
+
+  /* ---------- Preloader ---------- */
+  .preloader { display: none; }
+  .has-preloader .preloader { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; background: #15120f; color: var(--white);
+    clip-path: inset(0 0 0 0); transition: clip-path 1s cubic-bezier(.76,0,.24,1) .1s; animation: plFailsafe .01s 8s forwards; }
+  .has-preloader .preloader.done { clip-path: inset(0 0 100% 0); pointer-events: none; }
+  @keyframes plFailsafe { to { visibility: hidden; } }
+  .pl-inner { text-align: center; transition: opacity .5s, translate .8s; }
+  .preloader.done .pl-inner { opacity: 0; translate: 0 -30px; }
+  .pl-logo { font-family: var(--serif); font-size: clamp(2.2rem, 6vw, 3.6rem); }
+  .pl-logo span { color: #e3c48f; font-style: italic; }
+  .pl-bar { width: min(280px, 60vw); height: 1px; margin: 22px auto 12px; background: rgba(255,255,255,.15); }
+  .pl-bar i { display: block; height: 100%; background: #e3c48f; transform-origin: 0 50%; transform: scaleX(var(--p, 0)); }
+  .pl-count { font-size: .76rem; letter-spacing: .3em; color: rgba(255,255,255,.6); font-variant-numeric: tabular-nums; }
+  html.is-loading { overflow: hidden; }
+  html.is-loading .hero-content > * { animation-play-state: paused; }
+
+  /* ---------- Custom cursor and magnetic buttons (mouse and trackpad only) ---------- */
+  .cursor { display: none; }
+  html.has-cursor .cursor { display: block; }
+  html.has-cursor, html.has-cursor * { cursor: none !important; }
+  html.has-cursor :is(input, textarea, select) { cursor: auto !important; }
+  .cursor > * { position: fixed; left: 0; top: 0; z-index: 300; pointer-events: none; border-radius: 50%; }
+  .cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: var(--gold); transition: opacity .2s; }
+  .cursor-ring { width: 38px; height: 38px; margin: -19px 0 0 -19px; display: grid; place-items: center; border: 1px solid rgba(176,141,87,.75);
+    transition: width .3s, height .3s, margin .3s, background .3s, border-color .3s, opacity .3s, scale .2s; }
+  .cursor-ring span { font: 600 .6rem var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--white); opacity: 0; transition: opacity .2s; }
+  .cursor.is-link .cursor-ring { width: 58px; height: 58px; margin: -29px 0 0 -29px; background: rgba(176,141,87,.14); border-color: var(--gold); }
+  .cursor.has-label .cursor-ring { width: 86px; height: 86px; margin: -43px 0 0 -43px; background: rgba(176,141,87,.9); border-color: transparent; }
+  .cursor.has-label .cursor-ring span { opacity: 1; }
+  .cursor.has-label .cursor-dot, .cursor.is-hidden > * { opacity: 0; }
+  .cursor.is-down .cursor-ring { scale: .82; }
+  html.has-cursor :is(.btn, .suite-ctrl button, .resort-ctrl button, .ring-nav button) {
+    transition: background .25s, color .25s, transform .25s, box-shadow .25s, border-color .25s, translate .45s cubic-bezier(.2,.8,.2,1); }
+  .hero-hint small { font-size: .6rem; letter-spacing: .16em; color: rgba(255,255,255,.55); }
+  @media (prefers-reduced-motion: reduce) { .hero-hint small { display: none; } }
 </style>
 </head>
 <body>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="pl-inner">
+    <div class="pl-logo">Luxury <span>Stays</span></div>
+    <div class="pl-bar"><i></i></div>
+    <div class="pl-count"><span id="plCount">0</span>%</div>
+  </div>
+</div>
+<div class="cursor" id="cursor" aria-hidden="true"><div class="cursor-ring"><span></span></div><div class="cursor-dot"></div></div>
 <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
 <header id="header">
@@ -402,7 +547,7 @@
       <li><a href="#about">About</a></li>
       <li><a href="#rooms">Rooms</a></li>
       <li><a href="#suite3d">3D Tour</a></li>
-      <li><a href="#amenities">Amenities</a></li>
+      <li><a href="#resort">Resort Map</a></li>
       <li><a href="#gallery">Gallery</a></li>
       <li><a href="#testimonials">Reviews</a></li>
       <li><a href="#contact">Contact</a></li>
@@ -417,7 +562,7 @@
   <section class="hero" id="home">
     <canvas id="heroCanvas" aria-hidden="true"></canvas>
     <div class="hero-shade" aria-hidden="true"></div>
-    <div class="container hero-content">
+    <div class="container hero-content" data-cursor="">
       <span class="eyebrow">Boutique Resort &amp; Spa</span>
       <h1>Where every stay becomes a <em>story</em></h1>
       <p>Ocean-view suites, an infinity pool at sunset and award-winning dining, all a short walk from the beach.</p>
@@ -430,7 +575,7 @@
       <span class="eyebrow">Golden hour at Palm Bay</span>
       <p>Arrive by sea.<br><em>Stay for the sunsets.</em></p>
     </div>
-    <div class="hero-hint" aria-hidden="true">Scroll to fly in</div>
+    <div class="hero-hint" aria-hidden="true">Scroll to fly in<small>or click the sea to light a lantern</small></div>
   </section>
   </div>
 
@@ -545,6 +690,52 @@
     </div>
   </section>
 
+  <section id="resort">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Resort Map</span>
+        <h2>Explore the island in 3D</h2>
+        <p>Fly around Palm Bay, pick any place to visit it, and slide the clock from sunrise to midnight to watch the lamps, pools and lighthouse come on.</p>
+      </div>
+    </div>
+    <div class="resort-wrap reveal" id="resortWrap">
+      <div class="resort-stage" id="resortStage">
+        <img class="resort-fallback" src="https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1400&q=75&auto=format&fit=crop" alt="Clifftop pool overlooking the ocean" loading="lazy">
+        <canvas id="resortCanvas" role="img" aria-label="Interactive 3D map of the resort island. Drag to look around; choose a place to fly to it."></canvas>
+        <div class="resort-pins" id="resortPins"></div>
+        <span class="resort-hint">Drag to fly around · click a place</span>
+        <div class="resort-hud">
+          <div class="resort-time">
+            <span class="rt-icon" id="resortIcon" aria-hidden="true">☀</span>
+            <label for="resortHour">Time of day</label>
+            <input type="range" id="resortHour" min="0" max="24" step="0.25" value="17.5" aria-valuetext="5:30 PM">
+            <output id="resortClock" for="resortHour">5:30 PM</output>
+          </div>
+          <div class="resort-ctrl">
+            <button type="button" data-resort-rotate="-1" aria-label="Turn left">↺</button>
+            <button type="button" data-resort-rotate="1" aria-label="Turn right">↻</button>
+            <button type="button" data-resort-zoom="-1" aria-label="Zoom out">−</button>
+            <button type="button" data-resort-zoom="1" aria-label="Zoom in">+</button>
+          </div>
+        </div>
+      </div>
+      <aside class="resort-panel" aria-label="Places on the island" data-lenis-prevent>
+        <div class="rp-head">
+          <span class="eyebrow">Palm Bay Island</span>
+          <button type="button" class="rp-tour" id="resortTour" data-tour aria-pressed="false">▶ Guided tour</button>
+        </div>
+        <div class="rp-progress" id="resortProgress"><i></i></div>
+        <div id="resortCard" aria-live="polite"></div>
+        <ol class="rp-list" id="resortList"></ol>
+        <div class="rp-nav">
+          <button type="button" data-resort-step="-1" aria-label="Previous place">←</button>
+          <button type="button" data-resort-overview>Whole island</button>
+          <button type="button" data-resort-step="1" aria-label="Next place">→</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
   <section id="experiences">
     <div class="container">
       <div class="section-head reveal">
@@ -588,7 +779,7 @@
         <span class="eyebrow">Gallery</span>
         <h2>A glimpse of Luxury Stays</h2>
       </div>
-      <div class="ring-stage reveal" id="ringStage" aria-roledescription="carousel" aria-label="Photo gallery">
+      <div class="ring-stage reveal" id="ringStage" data-cursor="Drag" aria-roledescription="carousel" aria-label="Photo gallery">
         <div class="ring" id="galleryRing"></div>
       </div>
       <div class="ring-nav">
@@ -646,7 +837,7 @@
         <a href="#home" class="logo" style="color:#fff">Luxury <span>Stays</span></a>
         <p style="margin-top:12px;max-width:280px">A boutique resort and spa by the sea. Thoughtful service, beautiful spaces, unforgettable stays.</p>
       </div>
-      <div><h4>Explore</h4><ul><li><a href="#rooms">Rooms &amp; Suites</a></li><li><a href="#amenities">Amenities</a></li><li><a href="#experiences">Experiences</a></li><li><a href="#gallery">Gallery</a></li></ul></div>
+      <div><h4>Explore</h4><ul><li><a href="#rooms">Rooms &amp; Suites</a></li><li><a href="#amenities">Amenities</a></li><li><a href="#experiences">Experiences</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#resort">Resort map</a></li><li><a href="https://github.com/rounak251/hotelweb/blob/main/docs/SYSTEM_DESIGN.md">How it's built</a></li></ul></div>
       <div><h4>Guests</h4><ul><li><a href="#booking">Book a stay</a></li><li><a href="#" data-manage>Manage booking</a></li><li><a href="#testimonials">Reviews</a></li><li><a href="#contact">Contact us</a></li></ul></div>
       <div>
         <h4>Newsletter</h4>
@@ -786,12 +977,22 @@
 
   async function detectBackend() {
     if (API_BASE === "" && !location.protocol.startsWith("http")) return setMode(false);
-    try {
+    const ping = async ms => {
       const ctrl = new AbortController();
-      setTimeout(() => ctrl.abort(), 4000);
-      const resp = await fetch(API_BASE + "/api/health", { signal: ctrl.signal });
-      setMode(resp.ok);
-    } catch { setMode(false); }
+      const timer = setTimeout(() => ctrl.abort(), ms);
+      try { return (await fetch(API_BASE + "/api/health", { signal: ctrl.signal })).ok; }
+      catch { return false; } finally { clearTimeout(timer); }
+    };
+    if (await ping(4000)) return setMode(true);
+    setMode(false);
+    // A free-tier host sleeps when idle and takes up to a minute to wake. Keep trying in the
+    // background and switch to live bookings once it answers; until then demo mode works.
+    if (!BACKEND_URL || API_BASE === "") return;
+    $("#modeBadge").innerHTML = '<span class="dot"></span>Waking up the booking system…';
+    for (let attempt = 0; attempt < 4; attempt++) {
+      if (await ping(30000)) return setMode(true);
+    }
+    setMode(false);
   }
 
   function setMode(isLive) {
@@ -799,6 +1000,7 @@
     $("#modeBadge").innerHTML = isLive
       ? '<span class="dot live"></span>Live booking system'
       : '<span class="dot"></span>Demo mode: bookings are not saved';
+    if (isLive) loadAvailability(suiteStage.dataset.current);
   }
 
   async function withLoading(button, label, fn) {
@@ -1316,14 +1518,251 @@
       <div class="suite-price">${inr(r.price)} <small>/ night</small></div>
       <p>${r.text}</p>
       <ul>${SUITE_NOTES[r.slug].map(n => `<li>${n}</li>`).join("")}</ul>
+      <div class="avail" id="suiteAvail" hidden></div>
       <button class="btn btn-gold" type="button" data-room="${r.slug}">Book the ${r.name}</button>`;
     $("#suiteFallback").src = img(r.photo, 1000);
     $("#suiteFallback").alt = r.name;
     suiteStage.dataset.current = r.slug;
     suiteStage.dispatchEvent(new CustomEvent("suitechange", { detail: r.slug }));
+    loadAvailability(r.slug);
   }
+
+  // Live availability for the next 14 nights from the booking API. Hidden in demo mode.
+  let availRequest = 0;
+  async function loadAvailability(slug) {
+    const box = $("#suiteAvail");
+    if (!live || !box) return;
+    const request = ++availRequest;
+    try {
+      const cal = await api(`/api/rooms/${slug}/calendar?days=14`);
+      if (request !== availRequest) return;
+      box.innerHTML = `
+        <div class="avail-head"><span>Next 14 nights</span><span>Live · ${cal.inventory > 1 ? "rooms left" : "availability"}</span></div>
+        <div class="avail-days">${cal.days.map(d => {
+          const left = d.rooms_left, label = left ? (cal.inventory > 1 ? `${left} left` : "available") : "sold out";
+          return `<button type="button" data-avail="${d.date}" ${left ? "" : "disabled"} title="${fmtDate(d.date)}: ${label}" aria-label="${fmtDate(d.date)}: ${label}"
+            style="--a:${(left / cal.inventory).toFixed(2)}"><i></i><small>${parse(d.date).toLocaleDateString("en-IN", { weekday: "narrow" })}</small></button>`;
+        }).join("")}</div>`;
+      box.hidden = false;
+    } catch { box.hidden = true; }
+  }
+  // Picking a night fills in the booking bar for that room.
+  $("#suiteInfo").addEventListener("click", e => {
+    const day = e.target.closest("[data-avail]");
+    if (!day) return;
+    const checkin = parse(day.dataset.avail);
+    $("#checkin").value = iso(checkin);
+    $("#checkout").value = iso(addDays(checkin, 1));
+    $("#roomType").value = suiteStage.dataset.current;
+    glideTo($("#booking"), true);
+    setTimeout(() => $("#bookingForm button[type=submit]").focus({ preventScroll: true }), 600);
+  });
   $("#suiteTabs").addEventListener("click", e => { const b = e.target.closest("[data-suite]"); if (b) selectSuite(b.dataset.suite); });
   selectSuite("presidential");
+
+  // ---------- 3D resort explorer: places, panel and guided tour (the island itself loads from js/resort3d.js) ----------
+  const RESORT_PLACES = [
+    { id: "jetty", name: "Arrival Jetty", kicker: "Arrive by sea", facts: ["Hourly transfers", "Welcome drink", "Luggage service"],
+      text: "Our speedboat meets you at the mainland pier and crosses the bay in 20 minutes. Your bags go straight to your room.",
+      cta: { label: "Arrange a transfer", href: "#contact" } },
+    { id: "lodge", name: "The Lodge", kicker: "Lobby & restaurant", facts: ["Breakfast 7–11 am", "Dinner 7–11 pm", "Terrace tables"],
+      text: "An open-air lobby under a palm-thatch roof, with The Palm Room restaurant on the terrace above the pool.",
+      cta: { label: "See dining", href: "#experiences" } },
+    { id: "pool", name: "Infinity Pool", kicker: "Heated · 32 m", facts: ["6 am – midnight", "Swim-up bar", "Pool butler"],
+      text: "A heated infinity pool that seems to spill into the lagoon, with loungers and striped parasols on a teak deck.",
+      cta: { label: "All amenities", href: "#amenities" } },
+    { id: "spa", name: "Lotus Spa", kicker: "Wellness pavilion", facts: ["9 am – 9 pm", "Couples suite", "Sunrise yoga"],
+      text: "A round treatment pavilion beside a lily pond, shaded by blossom trees. Massages, steam rooms and sunrise yoga.",
+      cta: { label: "Ask about treatments", href: "#contact" } },
+    { id: "beach", name: "Beach Club", kicker: "White sand", facts: ["Cabanas", "Kayaks & paddleboards", "Snorkelling"],
+      text: "Cabanas, loungers and kayaks on the calm side of the island. Paddleboards and snorkel gear are free for guests.",
+      cta: { label: "See the gallery", href: "#gallery" } },
+    { id: "villas", name: "Overwater Villas", kicker: "Suites on stilts", facts: ["Private deck", "Plunge pool", "Butler service"],
+      text: "Executive and Presidential suites on a boardwalk over the lagoon, each with a private deck and plunge pool.",
+      cta: { label: "Book a suite", room: "presidential" } },
+    { id: "bar", name: "Sunset Bar", kicker: "The western point", facts: ["4 pm – 1 am", "Live music Fridays", "Best sunset seat"],
+      text: "Cocktails at golden hour beside the old lighthouse, facing the sunset across the open sea.",
+      cta: { label: "Watch the sunset", hour: 18.1 } },
+  ];
+  const RESORT_INTRO = `
+    <span class="eyebrow">7 places · 20 minutes from the mainland</span>
+    <h3>One island, all yours</h3>
+    <p>Drag to fly around, or pick a place to visit it. Slide the clock to watch the island from sunrise to midnight.</p>
+    <ul class="rp-facts"><li>Overwater villas</li><li>Infinity pool</li><li>Lighthouse bar</li></ul>
+    <button class="btn btn-gold" type="button" data-tour>Start the guided tour</button>`;
+  const resortStage = $("#resortStage"), resortWrap = $("#resortWrap"), hourInput = $("#resortHour");
+  const TOUR_STEP = 7000;
+  let placeIndex = -1, tourTimer = 0;
+  $("#resortPins").innerHTML = RESORT_PLACES.map((p, i) =>
+    `<button type="button" class="pin" data-place="${p.id}" aria-label="${i + 1}. ${p.name}"><b>${i + 1}</b><span>${p.name}</span></button>`).join("");
+  $("#resortList").innerHTML = RESORT_PLACES.map((p, i) =>
+    `<li><button type="button" data-place="${p.id}" aria-pressed="false"><b>${i + 1}</b>${p.name}</button></li>`).join("");
+
+  function selectPlace(id, fromTour = false) {
+    if (!fromTour) stopTour();
+    placeIndex = RESORT_PLACES.findIndex(p => p.id === id);
+    const p = RESORT_PLACES[placeIndex];
+    document.querySelectorAll("#resortList [data-place]").forEach(b => b.setAttribute("aria-pressed", b.dataset.place === id));
+    const pad = n => String(n).padStart(2, "0");
+    const cta = !p ? "" : p.cta.room ? `<button class="btn btn-gold" type="button" data-room="${p.cta.room}">${p.cta.label}</button>`
+      : p.cta.hour != null ? `<button class="btn btn-gold" type="button" data-hour="${p.cta.hour}">${p.cta.label}</button>`
+      : `<a class="btn btn-gold" href="${p.cta.href}">${p.cta.label}</a>`;
+    $("#resortCard").innerHTML = `<div class="rp-card">${p ? `
+      <span class="eyebrow">${pad(placeIndex + 1)} / ${pad(RESORT_PLACES.length)} · ${p.kicker}</span>
+      <h3>${p.name}</h3>
+      <p>${p.text}</p>
+      <ul class="rp-facts">${p.facts.map(f => `<li>${f}</li>`).join("")}</ul>
+      ${cta}` : RESORT_INTRO}</div>`;
+    resortStage.dataset.place = p ? p.id : "";
+    resortStage.dispatchEvent(new CustomEvent("placechange", { detail: p ? p.id : null }));
+  }
+  function stepPlace(dir, fromTour) {
+    const n = RESORT_PLACES.length;
+    selectPlace(RESORT_PLACES[((placeIndex < 0 && dir < 0 ? 0 : placeIndex) + dir + n) % n].id, fromTour);
+  }
+
+  function startTour() {
+    stopTour();
+    const bar = $("#resortProgress");
+    bar.style.setProperty("--step", TOUR_STEP / 1000 + "s");
+    const step = () => {
+      stepPlace(1, true);
+      bar.classList.remove("run");
+      void bar.offsetWidth;   // restart the progress animation
+      bar.classList.add("run");
+    };
+    step();
+    tourTimer = setInterval(step, TOUR_STEP);
+    $("#resortTour").setAttribute("aria-pressed", "true");
+    $("#resortTour").textContent = "❚❚ Pause tour";
+  }
+  function stopTour() {
+    if (!tourTimer) return;
+    clearInterval(tourTimer);
+    tourTimer = 0;
+    $("#resortProgress").classList.remove("run");
+    $("#resortTour").setAttribute("aria-pressed", "false");
+    $("#resortTour").textContent = "▶ Guided tour";
+  }
+
+  const clockText = h => {
+    const hh = Math.floor(h) % 24, mm = Math.round((h % 1) * 60);
+    return `${hh % 12 || 12}:${String(mm).padStart(2, "0")} ${hh < 12 ? "AM" : "PM"}`;
+  };
+  function setResortHour(h) {
+    hourInput.value = h;
+    const text = clockText(h);
+    $("#resortClock").textContent = text;
+    hourInput.setAttribute("aria-valuetext", text);
+    $("#resortIcon").textContent = h >= 6.3 && h < 18.8 ? "☀" : "☾";
+    resortStage.dispatchEvent(new CustomEvent("hourchange", { detail: h }));
+  }
+  // Ease the clock to a new time so the light visibly sweeps across the island.
+  let hourAnim = 0;
+  function animateHour(to) {
+    cancelAnimationFrame(hourAnim);
+    const from = +hourInput.value, start = performance.now(), ms = reduceMotion ? 0 : 1800;
+    const tick = now => {
+      const t = ms ? Math.min(1, (now - start) / ms) : 1;
+      setResortHour(from + (to - from) * (1 - (1 - t) ** 3));
+      if (t < 1) hourAnim = requestAnimationFrame(tick);
+    };
+    hourAnim = requestAnimationFrame(tick);
+  }
+  hourInput.addEventListener("input", () => { cancelAnimationFrame(hourAnim); setResortHour(+hourInput.value); });
+
+  resortWrap.addEventListener("click", e => {
+    const place = e.target.closest("[data-place]");
+    if (place) return selectPlace(place.dataset.place);
+    if (e.target.closest("[data-tour]")) return tourTimer ? stopTour() : startTour();
+    const step = e.target.closest("[data-resort-step]");
+    if (step) return stepPlace(+step.dataset.resortStep);
+    if (e.target.closest("[data-resort-overview]")) return selectPlace(null);
+    const hour = e.target.closest("[data-hour]");
+    if (hour) { stopTour(); animateHour(+hour.dataset.hour); }
+  });
+  resortStage.addEventListener("placepick", e => selectPlace(e.detail));
+  resortStage.addEventListener("pointerdown", e => { if (e.target.tagName === "CANVAS") stopTour(); });
+  new IntersectionObserver(([e]) => { if (!e.isIntersecting) stopTour(); }).observe(resortStage);
+  selectPlace(null);
+
+  // ---------- Preloader: counts up while fonts, the page and the 3D hero load, then lifts like a curtain ----------
+  (function preloader() {
+    const el = $("#preloader"), root = document.documentElement;
+    if (!root.classList.contains("has-preloader")) return el.remove();
+    const heroEl = $(".hero"), started = performance.now();
+    let fonts = false, loaded = document.readyState === "complete", shown = 0;
+    document.fonts?.ready.then(() => { fonts = true; });
+    addEventListener("load", () => { loaded = true; }, { once: true });
+    (function tick(now) {
+      const elapsed = now - started;
+      const hero = heroEl.classList.contains("is-3d") || !window.WebGL2RenderingContext;
+      const target = elapsed > 4500 ? 100 : 10 + (fonts ? 25 : 0) + (loaded ? 25 : 0) + (hero ? 40 : 0);
+      shown = Math.min(target, shown + Math.max(0.4, (target - shown) * 0.09));
+      $("#plCount").textContent = Math.round(shown);
+      el.style.setProperty("--p", shown / 100);
+      if (shown >= 100 && elapsed > 900) {
+        el.classList.add("done");
+        root.classList.remove("is-loading");
+        return setTimeout(() => el.remove(), 1300);
+      }
+      requestAnimationFrame(tick);
+    })(started);
+  })();
+
+  // ---------- Custom cursor and magnetic buttons (mouse and trackpad only) ----------
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches && !reduceMotion) {
+    const cursor = $("#cursor"), dot = cursor.querySelector(".cursor-dot"), ringEl = cursor.querySelector(".cursor-ring");
+    const label = ringEl.querySelector("span");
+    const MAGNETIC = ".btn, .suite-ctrl button, .resort-ctrl button, .ring-nav button";
+    let x = -100, y = -100, rx = x, ry = y, follow = 0, magnet = null;
+    document.documentElement.classList.add("has-cursor");
+    const trail = () => {
+      rx += (x - rx) * 0.2;
+      ry += (y - ry) * 0.2;
+      ringEl.style.transform = `translate(${rx.toFixed(1)}px, ${ry.toFixed(1)}px)`;
+      follow = Math.abs(x - rx) + Math.abs(y - ry) > 0.2 ? requestAnimationFrame(trail) : 0;
+    };
+    function hoverState(t) {
+      const link = t.closest("a, button, label, select, [role=button]");
+      // 3D scenes mark hoverable objects with a pointer cursor on their canvas.
+      const text = link ? "" : t.tagName === "CANVAS" && t.style.cursor === "pointer" ? "Visit" : t.closest("[data-cursor]")?.dataset.cursor || "";
+      cursor.classList.toggle("is-link", !!link);
+      cursor.classList.toggle("has-label", !!text);
+      if (text) label.textContent = text;
+      // Buttons lean towards the pointer.
+      const m = t.closest(MAGNETIC);
+      if (magnet && magnet !== m) magnet.style.translate = "";
+      magnet = m;
+      if (m) {
+        const r = m.getBoundingClientRect();
+        m.style.translate = `${((x - r.left - r.width / 2) * 0.22).toFixed(1)}px ${((y - r.top - r.height / 2) * 0.32).toFixed(1)}px`;
+      }
+    }
+    addEventListener("pointermove", e => {
+      if (e.pointerType !== "mouse") return;
+      x = e.clientX; y = e.clientY;
+      dot.style.transform = `translate(${x}px, ${y}px)`;
+      if (!follow) follow = requestAnimationFrame(trail);
+      cursor.classList.remove("is-hidden");
+      hoverState(e.target instanceof Element ? e.target : document.body);
+    }, { passive: true });
+    // Scrolling moves the page under a still pointer, so look again at what's beneath it.
+    let scrollCheck = 0;
+    addEventListener("scroll", () => {
+      if (scrollCheck || x < 0) return;
+      scrollCheck = requestAnimationFrame(() => {
+        scrollCheck = 0;
+        hoverState(document.elementFromPoint(x, y) || document.body);
+      });
+    }, { passive: true });
+    document.documentElement.addEventListener("mouseleave", () => {
+      cursor.classList.add("is-hidden");
+      if (magnet) { magnet.style.translate = ""; magnet = null; }
+    });
+    addEventListener("pointerdown", () => cursor.classList.add("is-down"));
+    addEventListener("pointerup", () => cursor.classList.remove("is-down"));
+  }
 
   $("#year").textContent = new Date().getFullYear();
   detectBackend();
@@ -1348,7 +1787,10 @@
   const webgl2 = (() => { try { return !!document.createElement("canvas").getContext("webgl2"); } catch { return false; } })();
   if (webgl2) {
     import("./js/hero3d.js")
-      .then(m => m.initHero(document.getElementById("heroCanvas"), { reducedMotion }))
+      .then(m => {
+        m.initHero(document.getElementById("heroCanvas"), { reducedMotion });
+        if (!reducedMotion) document.getElementById("home").dataset.cursor = "Lantern";
+      })
       .catch(err => console.warn("3D hero unavailable:", err));
 
     // The room tour loads when it's about to scroll into view.
@@ -1372,9 +1814,31 @@
           viewer.setNight(on);
         });
         stage.classList.add("is-3d");
+        stage.dataset.cursor = "Drag";
       } catch (err) { console.warn("3D room tour unavailable:", err); }
     }, { rootMargin: "600px 0px" });
     lazy.observe(stage);
+
+    // The resort map loads the same way. The panel, places list and clock work without it.
+    const resort = document.getElementById("resortStage");
+    const lazyResort = new IntersectionObserver(async ([entry]) => {
+      if (!entry.isIntersecting) return;
+      lazyResort.disconnect();
+      try {
+        const { createResortExplorer } = await import("./js/resort3d.js");
+        const explorer = createResortExplorer(document.getElementById("resortCanvas"),
+          { stage: resort, pins: document.getElementById("resortPins"), panel: resort.parentElement.querySelector(".resort-panel"), reducedMotion });
+        explorer.setHour(+document.getElementById("resortHour").value);
+        if (resort.dataset.place) explorer.focus(resort.dataset.place);
+        resort.addEventListener("placechange", e => e.detail ? explorer.focus(e.detail) : explorer.overview());
+        resort.addEventListener("hourchange", e => explorer.setHour(e.detail));
+        resort.querySelectorAll("[data-resort-rotate]").forEach(b => b.addEventListener("click", () => explorer.rotate(+b.dataset.resortRotate)));
+        resort.querySelectorAll("[data-resort-zoom]").forEach(b => b.addEventListener("click", () => explorer.zoom(+b.dataset.resortZoom)));
+        resort.classList.add("is-3d");
+        resort.dataset.cursor = "Drag";
+      } catch (err) { console.warn("3D resort map unavailable:", err); }
+    }, { rootMargin: "600px 0px" });
+    lazyResort.observe(resort);
   }
 </script>
 </body>

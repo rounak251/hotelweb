@@ -209,7 +209,7 @@ export function initHero(canvas, { reducedMotion = false } = {}) {
   function updateLanterns(time, dt) {
     lanterns.forEach((l, i) => {
       l.y += l.speed * dt;
-      if (l.y > 260) { l.y = -6; l.x = (rand() - 0.5) * 760; }
+      if (l.y > 260) { l.y = -6; l.x = (rand() - 0.5) * 760; l.speed = 2.2 + rand() * 3; }
       const x = l.x + Math.sin(time * 0.4 + l.phase) * l.sway;
       dummy.position.set(x, l.y, l.z);
       dummy.rotation.y = time * 0.3 + l.phase;
@@ -219,6 +219,45 @@ export function initHero(canvas, { reducedMotion = false } = {}) {
     });
     lanternMesh.instanceMatrix.needsUpdate = true;
     glowGeo.attributes.position.needsUpdate = true;
+  }
+
+  // Click or tap the sea to release a lantern from that spot, with a ripple where it lifts off.
+  const ripples = Array.from({ length: 4 }, () => {
+    const m = new THREE.Mesh(new THREE.RingGeometry(0.88, 1, 64).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial({ color: 0xffd9a0, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+    m.visible = false;
+    m.userData.age = Infinity;
+    scene.add(m);
+    return m;
+  });
+  function updateRipples(dt) {
+    ripples.forEach(r => {
+      r.userData.age += dt;
+      const t = r.userData.age / 1.8;
+      r.visible = t < 1;
+      if (!r.visible) return;
+      r.scale.setScalar(1.5 + t * 12);
+      r.material.opacity = (1 - t) * 0.8;
+    });
+  }
+  if (!reducedMotion) {
+    const raycaster = new THREE.Raycaster(), seaPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
+    let nextLantern = 0, nextRipple = 0;
+    hero.addEventListener("pointerdown", e => {
+      if (e.button !== 0 || e.target.closest("a, button, input, select")) return;
+      const rect = canvas.getBoundingClientRect();
+      raycaster.setFromCamera(new THREE.Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -(e.clientY - rect.top) / rect.height * 2 + 1), camera);
+      if (!raycaster.ray.intersectPlane(seaPlane, hit) || hit.distanceTo(camera.position) > 900) return;
+      // Release close clicks a little further out, so the lantern isn't a giant block right in front of the camera.
+      const dx = hit.x - camera.position.x, dz = hit.z - camera.position.z, d = Math.hypot(dx, dz);
+      if (d < 140) hit.set(camera.position.x + dx / d * 140, 0, camera.position.z + dz / d * 140);
+      Object.assign(lanterns[nextLantern], { x: hit.x, y: 0, z: hit.z, speed: 7 + rand() * 3 });
+      nextLantern = (nextLantern + 1) % count;
+      const ripple = ripples[nextRipple];
+      nextRipple = (nextRipple + 1) % ripples.length;
+      ripple.position.set(hit.x, 0.4, hit.z);
+      ripple.userData.age = 0;
+    });
   }
 
   // Sun and the environment light it casts on the island.
@@ -284,6 +323,7 @@ export function initHero(canvas, { reducedMotion = false } = {}) {
     camera.lookAt(lookTarget);
     water.material.uniforms.time.value = time * 0.55;
     updateLanterns(time, dt);
+    updateRipples(dt);
     glowMat.size = 13 + progress * 5;
   }
 

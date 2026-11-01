@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hotel
+      POSTGRES_PASSWORD: hotel
+      POSTGRES_DB: hotel
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hotel -d hotel"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://hotel:hotel@db:5432/hotel
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-dev-admin-password}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-me}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://rounak251.github.io,http://localhost:8000}
+      SESSION_COOKIE_SECURE: "0"  # plain-http local dev; remove behind HTTPS
+
+volumes:
+  pgdata:
