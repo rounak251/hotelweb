@@ -351,6 +351,11 @@ def index():
     return send_from_directory(ROOT, "index.html")
 
 
+@app.get("/js/<path:name>")
+def scripts(name):
+    return send_from_directory(ROOT / "js", name)
+
+
 init_db()
 
 if __name__ == "__main__":

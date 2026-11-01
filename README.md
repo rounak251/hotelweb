@@ -15,6 +15,13 @@ A full-stack hotel website: a responsive, animated landing page plus a Flask + S
 - Contact form with inline validation, and newsletter sign-up
 - Works without a server: on GitHub Pages it runs in **demo mode** (prices are calculated in the browser, nothing is saved)
 
+**3D** (`js/hero3d.js`, `js/suite3d.js`; Three.js r170 from a CDN, no build step)
+- Hero: a real-time sunset ocean with the resort on an island and lanterns rising off the water. Scrolling sets the sun; the camera follows the pointer
+- 3D room tour: a cut-away model of each room type (bed, soaking tub, living area, terrace with plunge pool) that you can orbit and zoom, with a day/night switch that turns on the lamps and pool lights. "View in 3D" on any room card opens it
+- Gallery as a 3D ring of photos you can drag, swipe or step through with the arrow keys
+- Cards tilt towards the pointer, experience photos swing through 3D as they scroll past, and the hero headline flips up on load
+- Without WebGL 2 the page keeps its photos; scenes pause when off screen and stay still with `prefers-reduced-motion`
+
 **Backend** (`backend/app.py`, Flask + SQLite)
 | Endpoint | Purpose |
 |---|---|
@@ -46,6 +53,6 @@ pip install pytest && python -m pytest backend
 Render's free tier has temporary disk storage, so the SQLite database resets on redeploys. For persistent data, attach a disk and set `DATABASE_PATH`, or switch to a hosted database.
 
 ## Tech stack
-HTML5 · CSS3 (grid, flexbox, custom properties) · vanilla JavaScript · Python · Flask · SQLite · pytest
+HTML5 · CSS3 (grid, flexbox, custom properties, 3D transforms) · vanilla JavaScript · Three.js (WebGL) · Python · Flask · SQLite · pytest
 
-Photos from [Unsplash](https://unsplash.com). Luxury Stays is a fictional hotel; this is a portfolio project.
+Photos from [Unsplash](https://unsplash.com). 3D built with [three.js](https://threejs.org) (MIT). Luxury Stays is a fictional hotel; this is a portfolio project.

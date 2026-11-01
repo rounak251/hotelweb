@@ -105,3 +105,11 @@ def test_serves_site_and_cors(client):
     resp = client.get("/api/health", headers={"Origin": "https://rounak251.github.io"})
     assert resp.headers["Access-Control-Allow-Origin"] == "https://rounak251.github.io"
     assert "Access-Control-Allow-Origin" not in client.get("/api/health", headers={"Origin": "https://evil.example"}).headers
+
+
+def test_site_and_3d_scripts_are_served(client):
+    assert b"heroCanvas" in client.get("/").data
+    for name in ("hero3d.js", "suite3d.js"):
+        resp = client.get(f"/js/{name}")
+        assert resp.status_code == 200 and b"three" in resp.data
+    assert client.get("/js/../backend/app.py").status_code == 404
