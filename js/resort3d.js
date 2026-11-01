@@ -800,7 +800,10 @@ export function createResortExplorer(canvas, { stage, pins, panel = null, reduce
     sph.setFromVector3(offset.copy(camera.position).sub(controls.target));
     return { target: controls.target.clone(), dist: sph.radius, polar: sph.phi, az: sph.theta };
   }
-  let flight = null, lastInteraction = performance.now(), interacting = false;
+  let flight = null, lastInteraction = performance.now(), interacting = false, pointerInside = false;
+  // Hold the slow idle spin while the pointer is over the map, so pins stay put under the cursor.
+  stage.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") pointerInside = true; });
+  stage.addEventListener("pointerleave", () => { pointerInside = false; });
   function flyTo(view, duration = 1.7) {
     const from = currentView();
     if (reducedMotion || duration === 0) { applyView(view); controls.update(); flight = null; requestRender(); return; }
@@ -920,7 +923,7 @@ export function createResortExplorer(canvas, { stage, pins, panel = null, reduce
     elapsed += dt;
     if (flight) stepFlight(Math.min(rawDt, 0.25));
     else {
-      controls.autoRotate = !reducedMotion && !interacting && performance.now() - lastInteraction > 7000;
+      controls.autoRotate = !reducedMotion && !interacting && !pointerInside && performance.now() - lastInteraction > 7000;
       controls.update(dt);
     }
     waterUniforms.uTime.value = elapsed;

@@ -37,7 +37,7 @@
   html.lenis, html.lenis body { height: auto; }
   .lenis.lenis-stopped { overflow: clip; }
   .lenis [data-lenis-prevent] { overscroll-behavior: contain; }
-  body { font-family: var(--sans); color: var(--ink); background: var(--cream); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  body { overflow-x: clip; font-family: var(--sans); color: var(--ink); background: var(--cream); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   img { display: block; max-width: 100%; }
   a { color: inherit; text-decoration: none; }
   .container { width: min(1180px, 100% - 40px); margin-inline: auto; }
@@ -112,6 +112,7 @@
 
   /* Booking bar */
   .booking { position: relative; z-index: 5; margin-top: -64px; }
+  .booking:has(.datepicker:not([hidden])) { z-index: 95; }
   .booking form { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 22px; display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 16px; align-items: end; }
   .field label { display: block; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; font-weight: 600; }
   .field input, .field select, .field textarea { width: 100%; padding: 12px 14px; border: 1px solid #e3ddd2; border-radius: 10px; font: 400 .95rem var(--sans); color: var(--ink); background: var(--cream); transition: border-color .2s, box-shadow .2s; }
@@ -119,6 +120,82 @@
   .field .error { display: none; color: #b3402e; font-size: .78rem; margin-top: 4px; }
   .field.invalid input, .field.invalid textarea { border-color: #b3402e; }
   .field.invalid .error { display: block; }
+
+  /* Booking bar: one rounded bar, fields divided by hairlines, a custom date-range picker */
+  .booking form { grid-template-columns: minmax(330px, 2.2fr) 1fr 1.4fr auto; gap: 0; padding: 10px; border-radius: 24px; align-items: stretch; }
+  .booking .field { position: relative; padding: 12px 20px; border-radius: 16px; transition: background .2s; }
+  .booking .field:hover, .booking .field:focus-within { background: var(--cream); }
+  .booking .field + .field::before { content: ""; position: absolute; left: 0; top: 22%; width: 1px; height: 56%; background: #ece5d8; }
+  .booking .field label { margin-bottom: 2px; }
+  .booking .field select { appearance: none; -webkit-appearance: none; padding: 2px 26px 2px 0; border: 0; border-radius: 0; box-shadow: none; cursor: pointer;
+    background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b08d57' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0 center / 16px;
+    font: 500 1rem var(--sans); }
+  .booking .field select:focus { box-shadow: none; }
+  .booking .field select:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 4px; }
+  .booking form > .btn { margin: 2px 2px 2px 8px; padding: 0 30px; border-radius: 16px; }
+  .booking .field-dates { padding: 0; }
+  .date-trigger { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; width: 100%; height: 100%; padding: 12px 20px; border: 0; border-radius: 16px;
+    background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .date-trigger > span:not(.dt-arrow):not(.dt-nights) { display: grid; gap: 2px; }
+  .date-trigger small { font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+  .date-trigger b { font: 500 1rem var(--sans); white-space: nowrap; }
+  .dt-arrow { color: var(--gold); }
+  .dt-nights { margin-left: auto; padding: 4px 11px; border-radius: 999px; background: rgba(176,141,87,.13); color: var(--gold-dark); font-size: .78rem; font-weight: 600; white-space: nowrap; }
+  .dt-nights:empty { display: none; }
+  .date-trigger:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .datepicker { position: absolute; z-index: 20; top: calc(100% + 16px); left: 0; width: 690px; padding: 20px 24px 18px; border-radius: 22px;
+    background: var(--white); box-shadow: 0 30px 70px rgba(28,26,23,.22); animation: dpIn .25s ease both; }
+  @keyframes dpIn { from { opacity: 0; translate: 0 -8px; } }
+  .dp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .dp-hint { font-size: .86rem; color: var(--ink-soft); }
+  .dp-nav { width: 38px; height: 38px; border-radius: 50%; border: 1px solid #e3ddd2; background: var(--white); color: var(--ink); font-size: 1.2rem; cursor: pointer; transition: background .2s, color .2s; }
+  .dp-nav:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); color: var(--white); }
+  .dp-nav:disabled { opacity: .3; cursor: default; }
+  .dp-months { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
+  .dp-month h4 { margin-bottom: 10px; text-align: center; font: 500 1.08rem var(--serif); }
+  .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; }
+  .dp-grid .wd { padding-bottom: 6px; text-align: center; font-size: .68rem; letter-spacing: .08em; color: var(--ink-soft); }
+  .dp-day { position: relative; height: 42px; padding: 0; border: 0; background: none; color: var(--ink); font: 500 .88rem var(--sans); cursor: pointer; }
+  .dp-day span { position: relative; z-index: 1; display: grid; place-items: center; width: 40px; height: 40px; margin: auto; border-radius: 50%; transition: background .15s, color .15s; }
+  .dp-day:hover:not(:disabled) span, .dp-day:focus-visible span { box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .dp-day:focus-visible { outline: none; }
+  .dp-day.is-today span { color: var(--gold-dark); font-weight: 700; }
+  .dp-day.in-range::before, .dp-day.is-start.has-range::before, .dp-day.is-end::before { content: ""; position: absolute; top: 1px; bottom: 1px; left: 0; right: 0; background: rgba(176,141,87,.15); }
+  .dp-day.is-start.has-range::before { left: 50%; }
+  .dp-day.is-end::before { right: 50%; }
+  .dp-day.is-start span, .dp-day.is-end span { background: var(--ink); color: var(--white); }
+  .dp-day:disabled { color: #cbc4b8; cursor: default; }
+  .dp-day.sold span { text-decoration: line-through; }
+  .dp-day.few span::after { content: ""; position: absolute; bottom: 4px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #d07a2a; }
+  .dp-foot { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; margin-top: 12px; padding-top: 14px; border-top: 1px solid #f0eae0; font-size: .85rem; }
+  .dp-legend { display: flex; align-items: center; gap: 6px; color: var(--ink-soft); font-size: .78rem; }
+  .dp-legend i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #d07a2a; }
+  .dp-legend s { margin-left: 10px; color: #b5ad9f; }
+  .dp-sum { margin-left: auto; font-weight: 600; }
+  .dp-foot .btn { padding: 10px 24px; }
+  .dp-clear { border: 0; background: none; color: var(--ink-soft); font: 500 .85rem var(--sans); text-decoration: underline; cursor: pointer; }
+  .dp-scrim { display: none; }
+  @media (max-width: 960px) {
+    .booking form { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .booking .field-dates, .booking form > .btn { grid-column: 1 / -1; }
+    .booking .field { background: var(--cream); }
+    .booking .field::before { display: none; }
+    .booking form > .btn { margin: 0; padding: 15px; }
+  }
+  @media (max-width: 720px) {
+    .datepicker { position: fixed; z-index: 2; top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 88vh; overflow-y: auto;
+      border-radius: 22px 22px 0 0; animation: dpUp .32s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes dpUp { from { translate: 0 100%; } }
+    .dp-months { grid-template-columns: 1fr; }
+    .dp-day { height: 40px; }
+    .dp-day span { width: 36px; height: 36px; }
+    .dp-scrim:not([hidden]) { position: fixed; inset: 0; z-index: 1; display: block; background: rgba(20,18,15,.45); }
+    .dp-legend { width: 100%; }
+  }
+  @media (max-width: 520px) {
+    .booking form { grid-template-columns: 1fr; }
+    .dt-arrow { display: none; }
+  }
 
   /* About */
   .about-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
@@ -156,12 +233,44 @@
   .btn-ghost:hover { border-color: var(--ink); background: var(--ink); color: var(--white); }
 
   /* Amenities */
-  .amenities { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
-  .amenity { position: relative; background: var(--white); padding: 30px 26px; border-radius: var(--radius); border: 1px solid #eee7db; }
-  .amenity:hover { border-color: var(--gold); --lift: -4px; }
-  .amenity svg { width: 38px; height: 38px; stroke: var(--gold); fill: none; stroke-width: 1.5; margin-bottom: 16px; }
-  .amenity h3 { font-size: 1.15rem; margin-bottom: 6px; }
-  .amenity p { font-size: .9rem; color: var(--ink-soft); }
+  /* Amenities: bento grid with photo tiles and a pointer spotlight */
+  .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 232px; gap: 18px;
+    grid-template-areas: "pool pool rs wifi" "pool pool din din" "spa spa trn cta"; }
+  .b-pool { grid-area: pool; } .b-rs { grid-area: rs; } .b-wifi { grid-area: wifi; } .b-dining { grid-area: din; }
+  .b-spa { grid-area: spa; } .b-trn { grid-area: trn; } .b-cta { grid-area: cta; }
+  .bento-card { position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; padding: 26px; border-radius: 22px;
+    background: var(--white); border: 1px solid #eee7db; color: var(--ink);
+    transition: border-color .3s, box-shadow .3s, opacity .8s ease var(--d, 0s), translate .8s ease var(--d, 0s); }
+  .bento-card::after { content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity .3s; pointer-events: none;
+    background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(176,141,87,.18), transparent 65%); }
+  .bento-card:hover::after { opacity: 1; }
+  .bento-card:hover { border-color: rgba(176,141,87,.55); box-shadow: var(--shadow); }
+  .b-icon svg { width: 40px; height: 40px; stroke: var(--gold); fill: none; stroke-width: 1.5; margin-bottom: auto; }
+  .b-icon h3 { font-size: 1.2rem; margin: 18px 0 6px; }
+  .b-icon p { font-size: .9rem; color: var(--ink-soft); }
+  .b-photo { justify-content: flex-end; padding: 0; border: 0; background: var(--ink); color: var(--white); }
+  .b-photo img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: scale 1.4s cubic-bezier(.2,.8,.2,1); }
+  .b-photo::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(14,12,10,.9), rgba(14,12,10,.35) 55%, rgba(14,12,10,0) 80%); }
+  .b-photo::after { background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.14), transparent 65%); }
+  .b-photo:hover img { scale: 1.07; }
+  .b-body { padding: 28px; }
+  .b-photo .eyebrow { color: #f3dcae; text-shadow: 0 1px 10px rgba(0,0,0,.55); }
+  .b-photo h3 { font-size: 1.5rem; margin: 8px 0 6px; }
+  .b-pool h3 { font-size: clamp(1.8rem, 2.6vw, 2.3rem); }
+  .b-photo p { max-width: 440px; font-size: .92rem; color: rgba(255,255,255,.8); }
+  .b-cta { justify-content: space-between; border: 0; background: var(--ink); color: var(--white); }
+  .b-cta h3 { font-size: 1.35rem; }
+  .b-arrow { align-self: flex-end; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--gold); font-size: 1.2rem; transition: translate .3s; }
+  .b-cta:hover .b-arrow { translate: 5px 0; }
+  @media (max-width: 960px) {
+    .bento { grid-template-columns: 1fr 1fr; grid-auto-rows: 210px; grid-template-areas: "pool pool" "pool pool" "rs wifi" "din din" "spa spa" "trn cta"; }
+  }
+  @media (max-width: 560px) {
+    .bento { grid-template-columns: 1fr; grid-auto-rows: auto; grid-template-areas: "pool" "rs" "wifi" "din" "spa" "trn" "cta"; }
+    .b-photo { min-height: 270px; }
+    .b-pool { min-height: 360px; }
+    .b-cta { min-height: 180px; }
+  }
 
   /* Experiences */
   #experiences { background: var(--ink); color: var(--white); }
@@ -170,6 +279,11 @@
   .exp:last-child { margin-bottom: 0; }
   .exp:nth-child(even) .exp-img { order: 2; }
   .exp-img img { border-radius: var(--radius); aspect-ratio: 3/2; object-fit: cover; width: 100%; }
+  /* Photos unmask and settle as they scroll in */
+  .about-img img, .exp-img img { clip-path: inset(0 round var(--radius)); transition: clip-path 1.3s cubic-bezier(.2,.8,.2,1), scale 1.8s cubic-bezier(.2,.8,.2,1); }
+  .exp-img { overflow: hidden; border-radius: var(--radius); }
+  .about-img.reveal:not(.visible) img { clip-path: inset(12% 10% 12% 10% round var(--radius)); }
+  .exp.reveal:not(.visible) .exp-img img { clip-path: inset(12% 10% 12% 10% round var(--radius)); scale: 1.16; }
   .exp h3 { font-size: 2rem; margin: 8px 0 14px; }
   .exp p { color: rgba(255,255,255,.72); margin-bottom: 18px; }
   .exp ul { list-style: none; display: grid; gap: 8px; }
@@ -207,14 +321,38 @@
 
   /* Testimonials */
   #testimonials { background: var(--sand); }
-  .reviews { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 26px; }
-  .review { background: var(--white); padding: 32px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; }
-  .review::before { content: "\201C"; font-family: var(--serif); font-size: 5rem; color: var(--gold); opacity: .25; position: absolute; top: 2px; right: 24px; line-height: 1; }
-  .stars { color: var(--gold); letter-spacing: 3px; margin-bottom: 14px; }
-  .review p { font-family: var(--serif); font-size: 1.12rem; font-style: italic; margin-bottom: 20px; }
-  .reviewer { display: flex; align-items: center; gap: 12px; }
-  .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: #e3c48f; display: grid; place-items: center; font-weight: 600; }
-  .reviewer small { display: block; color: var(--ink-soft); }
+  .stars { color: var(--gold); letter-spacing: 3px; }
+  .rating { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center; max-width: 880px; margin: 0 auto 52px; padding: 28px 36px;
+    border-radius: 22px; background: var(--white); box-shadow: var(--shadow); }
+  .rating-score { display: flex; align-items: center; gap: 18px; }
+  .rating-score > b { font: 500 4.2rem/1 var(--serif); }
+  .rating-score small { display: block; max-width: 170px; margin-top: 4px; font-size: .82rem; color: var(--ink-soft); }
+  .rating-bars { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 34px; }
+  .rating-bars li { display: grid; grid-template-columns: 74px 1fr 30px; align-items: center; gap: 10px; font-size: .86rem; }
+  .rating-bars i { height: 6px; border-radius: 3px; background: #efe8da; overflow: hidden; }
+  .rating-bars i::after { content: ""; display: block; height: 100%; background: linear-gradient(90deg, var(--gold), #e3c48f); transform-origin: 0 50%; transform: scaleX(0);
+    transition: transform 1.4s cubic-bezier(.2,.8,.2,1) .3s; }
+  .rating.visible .rating-bars i::after { transform: scaleX(var(--v)); }
+  .rating-bars b { text-align: right; }
+  .review-rails { display: grid; gap: 22px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+  .rail { overflow: hidden; padding: 6px 0 14px; }
+  .rail-track { display: flex; width: max-content; animation: rail 70s linear infinite; }
+  .rail-rev .rail-track { animation-direction: reverse; animation-duration: 80s; }
+  .rail:hover .rail-track, .rail:focus-within .rail-track { animation-play-state: paused; }
+  .rail-set { display: flex; gap: 22px; padding-right: 22px; }
+  @keyframes rail { to { transform: translateX(-50%); } }
+  .rv { flex: none; display: flex; flex-direction: column; gap: 14px; width: 370px; margin: 0; padding: 26px 28px; border-radius: 20px; background: var(--white);
+    box-shadow: 0 8px 24px rgba(28,26,23,.06); transition: translate .3s, box-shadow .3s; }
+  .rv:hover { translate: 0 -4px; box-shadow: var(--shadow); }
+  .rv blockquote { flex: 1; font: italic 1.06rem/1.5 var(--serif); }
+  .rv figcaption { display: flex; align-items: center; gap: 12px; font-size: .9rem; }
+  .avatar { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: hsl(var(--h, 30) 28% 20%); color: #e3c48f; font-weight: 600; font-size: .85rem; }
+  .rv small { display: block; font-size: .8rem; color: var(--ink-soft); }
+  @media (max-width: 760px) {
+    .rating { grid-template-columns: 1fr; gap: 22px; padding: 24px; margin-inline: 0; }
+    .rating-bars { grid-template-columns: 1fr; }
+    .rv { width: 290px; }
+  }
 
   /* Contact */
   .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; }
@@ -228,7 +366,17 @@
   .contact-form textarea { min-height: 130px; resize: vertical; }
 
   /* Footer */
-  footer { background: #12110f; color: rgba(255,255,255,.65); padding: 64px 0 28px; font-size: .92rem; }
+  footer { background: #12110f; color: rgba(255,255,255,.65); padding: 88px 0 0; font-size: .92rem; overflow: hidden; }
+  .footer-cta { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 28px; margin-bottom: 64px; padding-bottom: 56px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .footer-cta h2 { margin: 12px 0 0; font-size: clamp(2.4rem, 6vw, 4.8rem); color: var(--white); }
+  .footer-cta h2 em { color: #e3c48f; }
+  .footer-cta-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .footer-cta .btn-outline { color: var(--white); }
+  .footer-word { margin: 30px 0 -0.14em; text-align: center; white-space: nowrap; pointer-events: none; user-select: none;
+    font: 500 clamp(4rem, 16.5vw, 17rem)/.9 var(--serif); letter-spacing: -.02em;
+    background: linear-gradient(180deg, rgba(227,196,143,.5), rgba(227,196,143,0) 82%); -webkit-background-clip: text; background-clip: text; color: transparent;
+    translate: 0 calc((1 - var(--fw, 1)) * 45%); }
+  .footer-word em { font-style: italic; }
   .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.3fr; gap: 40px; margin-bottom: 44px; }
   footer h4 { color: var(--white); font-family: var(--serif); font-weight: 500; font-size: 1.1rem; margin-bottom: 14px; }
   footer ul { list-style: none; display: grid; gap: 8px; }
@@ -236,7 +384,7 @@
   .newsletter { display: flex; margin-top: 12px; }
   .newsletter input { flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); color: var(--white); border-radius: 999px 0 0 999px; font: inherit; }
   .newsletter button { border-radius: 0 999px 999px 0; padding: 12px 18px; }
-  .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: .82rem; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding: 24px 0 8px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: .82rem; }
 
   /* Modal & toast */
   .modal { position: fixed; inset: 0; z-index: 90; background: rgba(10,10,12,.6); display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -461,14 +609,15 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
     .reveal { opacity: 1; translate: none; }
+    .about-img img, .exp-img img { clip-path: none !important; scale: none !important; }
+    .rail { overflow-x: auto; }
+    .rail-set[aria-hidden] { display: none; }
     .hero-pin { height: auto; }
     .hero-pin > .hero { position: relative; height: auto; min-height: 100vh; }
   }
 
   /* Responsive */
   @media (max-width: 960px) {
-    .booking form { grid-template-columns: 1fr 1fr; }
-    .booking form .btn { grid-column: span 2; }
     .about-grid, .exp, .contact-grid { grid-template-columns: 1fr; gap: 36px; }
     .exp:nth-child(even) .exp-img { order: 0; }
     .about-badge { right: 16px; }
@@ -476,17 +625,23 @@
   }
   @media (max-width: 760px) {
     .menu-toggle { display: block; }
-    .nav-links { position: fixed; inset: 0 0 0 auto; width: min(300px, 80%); background: var(--cream); color: var(--ink); flex-direction: column; align-items: flex-start; padding: 90px 32px; gap: 22px; transform: translateX(100%); transition: transform .35s ease; box-shadow: -10px 0 40px rgba(0,0,0,.15); }
-    .menu-open .nav-links { transform: none; }
-    .menu-open header { color: var(--ink); }
+    .nav-links { position: fixed; inset: 0; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; padding: 90px 32px 40px;
+      background: radial-gradient(120% 80% at 100% 0%, #2a241d, #15120f 60%); color: var(--white); visibility: hidden;
+      clip-path: circle(0 at calc(100% - 42px) 34px); transition: clip-path .6s cubic-bezier(.7,0,.3,1), visibility 0s .6s; }
+    .menu-open .nav-links { visibility: visible; clip-path: circle(150% at calc(100% - 42px) 34px); transition: clip-path .7s cubic-bezier(.7,0,.3,1), visibility 0s; }
+    .nav-links li { opacity: 0; translate: 0 24px; transition: opacity .3s, translate .3s; }
+    .menu-open .nav-links li { opacity: 1; translate: none; transition: opacity .5s ease calc(.18s + var(--i, 0) * .05s), translate .6s cubic-bezier(.2,.8,.2,1) calc(.18s + var(--i, 0) * .05s); }
+    .nav-links a:not(.btn) { font: 500 clamp(1.7rem, 7.5vw, 2.3rem)/1.3 var(--serif); }
+    .nav-links a:not(.btn)::after { display: none; }
+    .nav-links .btn { margin-top: 22px; padding: 14px 30px; font-size: 1rem; }
+    .menu-open .menu-toggle { color: var(--white); }
+    .menu-open header.scrolled { backdrop-filter: none; }
     .menu-toggle { position: relative; z-index: 60; }
     section { padding: 72px 0; }
     .row-2, .stats { grid-template-columns: 1fr; }
     .stats { gap: 14px; }
   }
   @media (max-width: 520px) {
-    .booking form { grid-template-columns: 1fr; }
-    .booking form .btn { grid-column: auto; }
     .footer-grid { grid-template-columns: 1fr; }
     .contact-form { padding: 24px; }
   }
@@ -581,13 +736,30 @@
 
   <div class="booking container" id="booking">
     <form id="bookingForm" novalidate>
-      <div class="field">
-        <label for="checkin">Check-in</label>
-        <input type="date" id="checkin" required>
-      </div>
-      <div class="field">
-        <label for="checkout">Check-out</label>
-        <input type="date" id="checkout" required>
+      <div class="field field-dates">
+        <button type="button" class="date-trigger" id="dateTrigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="datePicker">
+          <span><small>Check-in</small><b id="dtIn">Add date</b></span>
+          <span class="dt-arrow" aria-hidden="true">→</span>
+          <span><small>Check-out</small><b id="dtOut">Add date</b></span>
+          <span class="dt-nights" id="dtNights"></span>
+        </button>
+        <input type="hidden" id="checkin">
+        <input type="hidden" id="checkout">
+        <div class="dp-scrim" id="dpScrim" hidden></div>
+        <div class="datepicker" id="datePicker" role="dialog" aria-label="Choose your dates" hidden data-lenis-prevent>
+          <div class="dp-head">
+            <button type="button" class="dp-nav" data-dp-step="-1" aria-label="Previous month">‹</button>
+            <p class="dp-hint" id="dpHint" aria-live="polite"></p>
+            <button type="button" class="dp-nav" data-dp-step="1" aria-label="Next month">›</button>
+          </div>
+          <div class="dp-months" id="dpMonths"></div>
+          <div class="dp-foot">
+            <span class="dp-legend" id="dpLegend" hidden><i></i>Few rooms left <s>12</s>Sold out</span>
+            <span class="dp-sum" id="dpSummary"></span>
+            <button type="button" class="dp-clear" id="dpClear">Clear</button>
+            <button type="button" class="btn btn-dark" id="dpDone">Done</button>
+          </div>
+        </div>
       </div>
       <div class="field">
         <label for="guests">Guests</label>
@@ -679,13 +851,23 @@
         <span class="eyebrow">Services</span>
         <h2>Everything you need, nothing you don't</h2>
       </div>
-      <div class="amenities">
-        <div class="amenity tilt reveal"><svg viewBox="0 0 24 24"><path d="M3 11h18M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M4 11l1 8h14l1-8M9 15h6"/></svg><h3>24/7 Room Service</h3><p>Order from our full menu at any hour, delivered straight to your door.</p></div>
-        <div class="amenity tilt reveal"><svg viewBox="0 0 24 24"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/></svg><h3>High-Speed Wi-Fi</h3><p>Free fibre internet in every room and across the whole property.</p></div>
-        <div class="amenity tilt reveal"><svg viewBox="0 0 24 24"><path d="M2 18c2 0 2-1.5 4-1.5S8 18 10 18s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M2 14c2 0 2-1.5 4-1.5S8 14 10 14s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M8 12V5a2 2 0 0 1 4 0M16 12V5a2 2 0 0 0-4 0"/></svg><h3>Infinity Pool</h3><p>A heated pool overlooking the ocean, open from sunrise to midnight.</p></div>
-        <div class="amenity tilt reveal"><svg viewBox="0 0 24 24"><path d="M12 21c-4-2-7-5.5-7-10a7 7 0 0 1 7-7 7 7 0 0 1 7 7c0 4.5-3 8-7 10zM12 8v6M9 11h6"/></svg><h3>Spa &amp; Wellness</h3><p>Massages, steam rooms and a fully equipped fitness studio.</p></div>
-        <div class="amenity tilt reveal"><svg viewBox="0 0 24 24"><path d="M2 16h20M6 16l2-9h8l2 9M10 7V4h4v3M5 20h14"/></svg><h3>Airport Transfers</h3><p>Private pickup and drop-off in comfortable chauffeur-driven cars.</p></div>
-        <div class="amenity tilt reveal"><svg viewBox="0 0 24 24"><path d="M4 3v8a3 3 0 0 0 3 3v7M7 3v6M10 3v8a3 3 0 0 1-3 3M17 21V3c-2 0-3 3-3 7s1 4 3 4"/></svg><h3>Fine Dining</h3><p>Two restaurants and a rooftop bar serving seasonal, local cuisine.</p></div>
+      <div class="bento" id="bento">
+        <article class="bento-card b-photo b-pool reveal">
+          <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1100&q=75&auto=format&fit=crop" alt="Infinity pool beside the timber lodge" loading="lazy">
+          <div class="b-body"><span class="eyebrow">Infinity Pool</span><h3>Heated, open from sunrise to midnight</h3><p>Thirty-two metres of warm water that seems to spill into the lagoon, with a swim-up bar, striped parasols and a pool butler.</p></div>
+        </article>
+        <article class="bento-card b-icon b-rs reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11h18M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M4 11l1 8h14l1-8M9 15h6"/></svg><h3>24/7 Room Service</h3><p>Order from our full menu at any hour, delivered straight to your door.</p></article>
+        <article class="bento-card b-icon b-wifi reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/></svg><h3>High-Speed Wi-Fi</h3><p>Free fibre internet in every room and across the whole property.</p></article>
+        <article class="bento-card b-photo b-dining reveal">
+          <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1000&q=75&auto=format&fit=crop" alt="Restaurant terrace reflected in the pool at dusk" loading="lazy">
+          <div class="b-body"><span class="eyebrow">Fine Dining</span><h3>Two restaurants and a rooftop bar</h3><p>Seasonal, local cuisine and a chef's tasting menu on the terrace.</p></div>
+        </article>
+        <article class="bento-card b-photo b-spa reveal">
+          <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1000&q=75&auto=format&fit=crop" alt="Guest enjoying an aromatherapy massage at the spa" loading="lazy">
+          <div class="b-body"><span class="eyebrow">Spa &amp; Wellness</span><h3>Massages, steam and sunrise yoga</h3><p>A treatment pavilion by the lily pond and a fully equipped fitness studio.</p></div>
+        </article>
+        <article class="bento-card b-icon b-trn reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 16h20M6 16l2-9h8l2 9M10 7V4h4v3M5 20h14"/></svg><h3>Airport Transfers</h3><p>Private pickup, then a 20-minute speedboat across the bay.</p></article>
+        <a class="bento-card b-cta reveal" href="#resort"><span class="eyebrow">Explore in 3D</span><h3>See every place on the island map</h3><span class="b-arrow" aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
@@ -796,12 +978,17 @@
         <span class="eyebrow">Reviews</span>
         <h2>What our guests say</h2>
       </div>
-      <div class="reviews">
-        <div class="review tilt reveal"><div class="stars">★★★★★</div><p>"The best hotel experience we've ever had. The staff remembered our names from day one."</p><div class="reviewer"><div class="avatar">AR</div><div><strong>Ananya R.</strong><small>Honeymoon · Executive Suite</small></div></div></div>
-        <div class="review tilt reveal"><div class="stars">★★★★★</div><p>"Exceptional service and a stunning pool. Waking up to that view was worth every rupee."</p><div class="reviewer"><div class="avatar">DK</div><div><strong>Daniel K.</strong><small>Family trip · Premier Room</small></div></div></div>
-        <div class="review tilt reveal"><div class="stars">★★★★★</div><p>"Loved the food and the spa. The chef's tasting menu was the highlight of our trip."</p><div class="reviewer"><div class="avatar">MS</div><div><strong>Meera S.</strong><small>Weekend getaway · Deluxe Room</small></div></div></div>
+      <div class="rating reveal">
+        <div class="rating-score"><b>4.9</b><div><span class="stars" aria-label="4.9 out of 5">★★★★★</span><small>Average from 1,284 verified stays</small></div></div>
+        <ul class="rating-bars" aria-label="Ratings by category">
+          <li><span>Service</span><i style="--v:.98"></i><b>4.9</b></li>
+          <li><span>Rooms</span><i style="--v:.96"></i><b>4.8</b></li>
+          <li><span>Location</span><i style="--v:.98"></i><b>4.9</b></li>
+          <li><span>Food</span><i style="--v:.94"></i><b>4.7</b></li>
+        </ul>
       </div>
     </div>
+    <div class="review-rails reveal" id="reviewRails"></div>
   </section>
 
   <section id="contact">
@@ -831,6 +1018,10 @@
 </main>
 
 <footer>
+  <div class="container footer-cta reveal">
+    <div><span class="eyebrow">Palm Bay · Goa</span><h2>Your island is <em>waiting.</em></h2></div>
+    <div class="footer-cta-actions"><a href="#booking" class="btn btn-gold">Book your stay</a><a href="#resort" class="btn btn-outline">Explore the island</a></div>
+  </div>
   <div class="container">
     <div class="footer-grid">
       <div>
@@ -851,6 +1042,7 @@
       <span>Photos: <a href="https://unsplash.com">Unsplash</a></span>
     </div>
   </div>
+  <div class="footer-word" id="footerWord" aria-hidden="true">Luxury <em>Stays</em></div>
 </footer>
 
 <div class="modal" id="bookingModal" data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -1045,7 +1237,7 @@
     if (book) {
       $("#roomType").value = book.dataset.room;
       glideTo($("#booking"), true);
-      setTimeout(() => $("#checkin").focus({ preventScroll: true }), 500);
+      setTimeout(() => $("#dateTrigger").focus({ preventScroll: true }), 500);
     }
     const tour = e.target.closest("[data-view3d]");
     if (tour) {
@@ -1183,17 +1375,162 @@
   lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
 
   // ---------- Booking flow: dates -> quote -> guest details -> confirmation ----------
+  // Date-range picker: two months (one on phones), range preview, running total, and live
+  // sold-out nights for the chosen room when the booking API is connected.
   const today = new Date();
-  $("#checkin").min = iso(today);
-  $("#checkin").value = iso(addDays(today, 1));
-  $("#checkout").value = iso(addDays(today, 3));
-  const syncCheckout = () => {
-    const min = iso(addDays(parse($("#checkin").value), 1));
-    $("#checkout").min = min;
-    if ($("#checkout").value < min) $("#checkout").value = min;
-  };
-  $("#checkin").addEventListener("change", syncCheckout);
-  syncCheckout();
+  today.setHours(0, 0, 0, 0);
+  const MAX_NIGHTS = 30;
+  const picker = $("#datePicker"), trigger = $("#dateTrigger");
+  const dp = { start: null, end: null, hover: null, month: null, cache: {} };
+  const sameDay = (a, b) => !!a && !!b && +a === +b;
+  const nightsBetween = (a, b) => Math.round((b - a) / 864e5);
+  const dayLabel = d => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+  const nights = n => `${n} night${n > 1 ? "s" : ""}`;
+
+  function setDates(checkin, checkout) {
+    $("#checkin").value = checkin ? iso(checkin) : "";
+    $("#checkout").value = checkout ? iso(checkout) : "";
+    $("#dtIn").textContent = checkin ? dayLabel(checkin) : "Add date";
+    $("#dtOut").textContent = checkout ? dayLabel(checkout) : "Add date";
+    $("#dtNights").textContent = checkin && checkout ? nights(nightsBetween(checkin, checkout)) : "";
+  }
+
+  async function loadRoomCalendar(slug) {
+    const hit = dp.cache[slug];
+    if (!live || (hit && Date.now() - hit.at < 60000)) return;
+    try {
+      const cal = await api(`/api/rooms/${slug}/calendar?days=90`);
+      dp.cache[slug] = { at: Date.now(), inventory: cal.inventory, left: Object.fromEntries(cal.days.map(d => [d.date, d.rooms_left])) };
+      if (!picker.hidden) renderPicker();
+    } catch { /* availability is a hint; the API re-checks at booking time */ }
+  }
+  const roomCal = () => dp.cache[$("#roomType").value];
+  const roomsLeft = d => roomCal()?.left[iso(d)];
+  const soldOut = d => roomsLeft(d) === 0;
+  // The latest check-out for a check-in: the next sold-out night (you leave that morning) or the stay limit.
+  function lastCheckout(start) {
+    for (let i = 1; i < MAX_NIGHTS; i++) if (soldOut(addDays(start, i))) return addDays(start, i);
+    return addDays(start, MAX_NIGHTS);
+  }
+
+  function renderPicker() {
+    const count = matchMedia("(max-width: 720px)").matches ? 1 : 2;
+    const weekdays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map(w => `<span class="wd" aria-hidden="true">${w}</span>`).join("");
+    let html = "";
+    for (let m = 0; m < count; m++) {
+      const first = new Date(dp.month.getFullYear(), dp.month.getMonth() + m, 1);
+      const days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+      let cells = "<span></span>".repeat((first.getDay() + 6) % 7);
+      for (let d = 1; d <= days; d++) cells += `<button type="button" class="dp-day" data-date="${iso(new Date(first.getFullYear(), first.getMonth(), d))}"><span>${d}</span></button>`;
+      html += `<div class="dp-month"><h4>${first.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</h4><div class="dp-grid">${weekdays}${cells}</div></div>`;
+    }
+    $("#dpMonths").innerHTML = html;
+    picker.querySelector('[data-dp-step="-1"]').disabled = dp.month <= new Date(today.getFullYear(), today.getMonth(), 1);
+    $("#dpLegend").hidden = !roomCal();
+    paintPicker();
+  }
+
+  // Update day states in place, so hovering to preview a range doesn't rebuild the calendar.
+  function paintPicker() {
+    const choosingEnd = dp.start && !dp.end;
+    const limit = choosingEnd ? lastCheckout(dp.start) : null;
+    const preview = choosingEnd && dp.hover > dp.start && dp.hover <= limit ? dp.hover : null;
+    const end = dp.end || preview;
+    const cal = roomCal();
+    picker.querySelectorAll(".dp-day").forEach(b => {
+      const d = parse(b.dataset.date), left = cal?.left[b.dataset.date];
+      const validEnd = choosingEnd && d > dp.start && d <= limit;
+      const sold = left === 0;
+      b.disabled = d < today || (sold && !validEnd);
+      b.classList.toggle("is-today", sameDay(d, today));
+      b.classList.toggle("is-start", sameDay(d, dp.start));
+      b.classList.toggle("has-range", !!end);
+      b.classList.toggle("is-end", sameDay(d, end));
+      b.classList.toggle("in-range", !!end && d > dp.start && d < end);
+      b.classList.toggle("sold", sold);
+      b.classList.toggle("few", !sold && left !== undefined && left <= 3 && cal.inventory > 3);
+      const note = d < today ? "" : sold ? ", sold out" : left !== undefined && left <= 3 && cal.inventory > 3 ? `, ${left} left` : "";
+      b.setAttribute("aria-label", d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" }) + note);
+      b.setAttribute("aria-pressed", sameDay(d, dp.start) || sameDay(d, end));
+    });
+    $("#dpHint").textContent = choosingEnd ? "Now choose your check-out date" : dp.start ? `${dayLabel(dp.start)} → ${dayLabel(dp.end)}` : "Choose your check-in date";
+    const room = ROOMS.find(r => r.slug === $("#roomType").value) || ROOMS[0];
+    const n = dp.start && end ? nightsBetween(dp.start, end) : 0;
+    $("#dpSummary").textContent = n ? `${nights(n)} · ${inr(n * room.price)} + GST` : `${room.name} · ${inr(room.price)} / night`;
+  }
+
+  function openPicker() {
+    dp.start = $("#checkin").value ? parse($("#checkin").value) : null;
+    dp.end = $("#checkout").value ? parse($("#checkout").value) : null;
+    const anchor = dp.start || today;
+    dp.month = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+    picker.hidden = $("#dpScrim").hidden = false;
+    trigger.setAttribute("aria-expanded", "true");
+    renderPicker();
+    loadRoomCalendar($("#roomType").value);
+    if (matchMedia("(max-width: 720px)").matches) lockScroll(true);
+    (picker.querySelector(".dp-day.is-start") || picker.querySelector(".dp-day:not(:disabled)"))?.focus({ preventScroll: true });
+  }
+  function closePicker(restoreFocus = true) {
+    if (picker.hidden) return;
+    // A check-in without a check-out becomes a one-night stay.
+    if (dp.start && !dp.end) setDates(dp.start, addDays(dp.start, 1));
+    picker.hidden = $("#dpScrim").hidden = true;
+    trigger.setAttribute("aria-expanded", "false");
+    lockScroll(false);
+    if (restoreFocus) trigger.focus({ preventScroll: true });
+  }
+  function pickDate(d) {
+    if (dp.start && !dp.end && d > dp.start && d <= lastCheckout(dp.start)) {
+      dp.end = d;
+      setDates(dp.start, dp.end);
+      paintPicker();
+      setTimeout(closePicker, 260);
+      return;
+    }
+    dp.start = d; dp.end = null; dp.hover = null;
+    paintPicker();
+  }
+  function stepMonth(dir) {
+    dp.month = new Date(dp.month.getFullYear(), dp.month.getMonth() + dir, 1);
+    renderPicker();
+  }
+
+  trigger.addEventListener("click", () => picker.hidden ? openPicker() : closePicker());
+  $("#dpMonths").addEventListener("click", e => {
+    const b = e.target.closest(".dp-day");
+    if (b && !b.disabled) pickDate(parse(b.dataset.date));
+  });
+  $("#dpMonths").addEventListener("pointerover", e => {
+    const b = e.target.closest(".dp-day");
+    const d = b ? parse(b.dataset.date) : null;
+    if (sameDay(d, dp.hover) || !dp.start || dp.end) return;
+    dp.hover = d;
+    paintPicker();
+  });
+  // Arrow keys move a day or a week, turning the page when needed.
+  $("#dpMonths").addEventListener("keydown", e => {
+    const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+    const b = e.target.closest(".dp-day");
+    if (!step || !b) return;
+    e.preventDefault();
+    const target = iso(addDays(parse(b.dataset.date), step));
+    let next = picker.querySelector(`[data-date="${target}"]`);
+    if (!next && parse(target) >= today) { stepMonth(step > 0 ? 1 : -1); next = picker.querySelector(`[data-date="${target}"]`); }
+    if (next) { next.focus(); if (dp.start && !dp.end) { dp.hover = parse(target); paintPicker(); } }
+  });
+  picker.querySelectorAll("[data-dp-step]").forEach(b => b.addEventListener("click", () => stepMonth(+b.dataset.dpStep)));
+  $("#dpDone").addEventListener("click", () => closePicker());
+  $("#dpClear").addEventListener("click", () => { dp.start = dp.end = dp.hover = null; paintPicker(); });
+  picker.addEventListener("keydown", e => { if (e.key === "Escape") { e.stopPropagation(); closePicker(); } });
+  document.addEventListener("pointerdown", e => {
+    if (!picker.hidden && !picker.contains(e.target) && !trigger.contains(e.target)) closePicker(false);
+  });
+  $("#roomType").addEventListener("change", () => {
+    loadRoomCalendar($("#roomType").value);
+    if (!picker.hidden) renderPicker();
+  });
+  setDates(addDays(today, 1), addDays(today, 3));
 
   const modal = $("#bookingModal");
   let currentQuote = null;
@@ -1356,8 +1693,17 @@
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
   $("#toTop").onclick = () => window.lenis ? window.lenis.scrollTo(0) : scrollTo({ top: 0, behavior: "smooth" });
   const toggle = $(".menu-toggle");
-  function closeMenu() { document.body.classList.remove("menu-open"); toggle.setAttribute("aria-expanded", "false"); }
-  toggle.addEventListener("click", () => toggle.setAttribute("aria-expanded", document.body.classList.toggle("menu-open")));
+  function closeMenu() {
+    if (!document.body.classList.contains("menu-open")) return;
+    document.body.classList.remove("menu-open");
+    toggle.setAttribute("aria-expanded", "false");
+    lockScroll(false);
+  }
+  toggle.addEventListener("click", () => {
+    const open = document.body.classList.toggle("menu-open");
+    toggle.setAttribute("aria-expanded", open);
+    lockScroll(open);
+  });
   document.querySelectorAll(".nav-links a").forEach(a => a.addEventListener("click", closeMenu));
 
   // ---------- Scroll reveal + stat counters ----------
@@ -1488,7 +1834,7 @@
       h.classList.add("split");
     });
   }
-  document.querySelectorAll(".amenities, .reviews").forEach(g => [...g.children].forEach((c, i) => c.style.setProperty("--d", `${(i % 3) * 90}ms`)));
+  document.querySelectorAll("#bento .bento-card").forEach((c, i) => c.style.setProperty("--d", `${(i % 4) * 80}ms`));
 
   // In-page links glide with Lenis instead of jumping.
   document.addEventListener("click", e => {
@@ -1551,8 +1897,7 @@
     const day = e.target.closest("[data-avail]");
     if (!day) return;
     const checkin = parse(day.dataset.avail);
-    $("#checkin").value = iso(checkin);
-    $("#checkout").value = iso(addDays(checkin, 1));
+    setDates(checkin, addDays(checkin, 1));
     $("#roomType").value = suiteStage.dataset.current;
     glideTo($("#booking"), true);
     setTimeout(() => $("#bookingForm button[type=submit]").focus({ preventScroll: true }), 600);
@@ -1763,6 +2108,55 @@
     addEventListener("pointerdown", () => cursor.classList.add("is-down"));
     addEventListener("pointerup", () => cursor.classList.remove("is-down"));
   }
+
+  // ---------- Amenities: a soft spotlight follows the pointer across the tiles ----------
+  $("#bento").addEventListener("pointermove", e => {
+    const card = e.target.closest(".bento-card");
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    card.style.setProperty("--my", `${e.clientY - r.top}px`);
+  });
+
+  // ---------- Reviews: two rails drifting in opposite directions (pause on hover) ----------
+  const REVIEWS = [
+    ["Ananya R.", "Honeymoon · Executive Suite", "The best hotel experience we've ever had. The staff remembered our names from day one."],
+    ["Daniel K.", "Family trip · Premier Room", "Exceptional service and a stunning pool. Waking up to that view was worth every rupee."],
+    ["Meera S.", "Weekend getaway · Deluxe Room", "Loved the food and the spa. The chef's tasting menu was the highlight of our trip."],
+    ["Rahul & Priya", "Anniversary · Presidential Suite", "Our own plunge pool over the lagoon, then cocktails by the lighthouse at sunset. Unreal."],
+    ["Sofia M.", "Solo trip · Deluxe Room", "I came to switch off and did exactly that. Don't miss sunrise yoga at the spa.", 4],
+    ["Arjun T.", "Work retreat · Executive Suite", "Fast Wi-Fi, a quiet living room to work from, and the beach a few steps away."],
+    ["The Kapoors", "Family of four · Executive Suite", "The kids lived in the pool and on the kayaks. The team made every evening special."],
+    ["Lena W.", "Honeymoon · Presidential Suite", "Arriving by speedboat set the tone. Every single detail felt considered."],
+    ["Vikram N.", "Birthday trip · Premier Room", "They surprised me with a cake at the Sunset Bar. Small touches, big memories."],
+    ["Aisha F.", "Friends' trip · Premier Room", "Cabanas, cocktails and the softest beds. We're already planning the next visit.", 4],
+  ];
+  const reviewCard = ([name, trip, text, stars = 5], i) => `
+    <figure class="rv">
+      <div class="stars" aria-label="${stars} out of 5 stars">${"★".repeat(stars)}${"☆".repeat(5 - stars)}</div>
+      <blockquote>“${esc(text)}”</blockquote>
+      <figcaption><span class="avatar" style="--h:${(i * 53) % 360}" aria-hidden="true">${esc(name.replace(/^The /, "").split(/[\s&]+/).filter(Boolean).map(w => w[0]).join("").slice(0, 2))}</span>
+        <span><strong>${esc(name)}</strong><small>${esc(trip)}</small></span></figcaption>
+    </figure>`;
+  $("#reviewRails").innerHTML = [REVIEWS.slice(0, 5), REVIEWS.slice(5)].map((row, r) => {
+    const cards = row.map((rv, i) => reviewCard(rv, i + r * 5)).join("");
+    return `<div class="rail${r ? " rail-rev" : ""}"><div class="rail-track"><div class="rail-set">${cards}</div><div class="rail-set" aria-hidden="true">${cards}</div></div></div>`;
+  }).join("");
+  $("#reviewRails").querySelectorAll('[aria-hidden="true"] .rv').forEach(el => el.setAttribute("inert", ""));
+
+  // ---------- Footer: the giant wordmark rises as the footer scrolls into view ----------
+  const footerEl = $("footer"), footerWord = $("#footerWord");
+  let footerQueued = false;
+  const updateFooter = () => {
+    footerQueued = false;
+    const r = footerEl.getBoundingClientRect();
+    footerWord.style.setProperty("--fw", clamp01((innerHeight - r.top) / Math.min(r.height, innerHeight)).toFixed(3));
+  };
+  addEventListener("scroll", () => { if (!footerQueued) { footerQueued = true; requestAnimationFrame(updateFooter); } }, { passive: true });
+  updateFooter();
+
+  // Mobile menu links slide in one after another.
+  document.querySelectorAll(".nav-links li").forEach((li, i) => li.style.setProperty("--i", i));
 
   $("#year").textContent = new Date().getFullYear();
   detectBackend();

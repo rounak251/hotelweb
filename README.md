@@ -20,10 +20,13 @@ A full-stack hotel website with interactive 3D scenes and a production-style boo
 
 **Motion and feel**
 - Preloader with a counter and a curtain reveal, a custom cursor with context labels (Drag, Visit, Lantern), and magnetic buttons
+- Amenities as a bento grid of photo and icon tiles with a spotlight that follows the pointer
+- Reviews with a rating summary and two rows of cards drifting in opposite directions
+- Photos unmask as they scroll in, a full-screen mobile menu, and a closing call to action with a giant wordmark that rises in the footer
 - Smooth scrolling with [Lenis](https://github.com/darkroomengineering/lenis); the hero and rooms pin while you scroll, experience cards stack, headings reveal word by word, a marquee runs, and a reading-progress bar tracks the page
 
 **Booking**
-- Booking bar with date validation, then a price quote (nights × rate + 18% GST), guest details and a confirmation with a booking reference
+- Booking bar with a custom date-range picker: two months (a bottom sheet on phones), a range preview with a running total, keyboard navigation, and live sold-out nights for the chosen room. It then gives a price quote (nights × rate + 18% GST), takes guest details and confirms with a booking reference
 - "My Booking" lookup by reference and email, with cancellation
 - Contact form and newsletter sign-up
 - Without a backend it runs in **demo mode**: prices are worked out in the browser and nothing is saved. When the backend is asleep on a free tier, the page keeps retrying and switches to live mode once it wakes
