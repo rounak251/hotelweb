@@ -26,6 +26,10 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   [hidden] { display: none !important; }
   html { scroll-behavior: smooth; }
+  html.lenis { scroll-behavior: auto; }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-stopped { overflow: clip; }
+  .lenis [data-lenis-prevent] { overscroll-behavior: contain; }
   body { font-family: var(--sans); color: var(--ink); background: var(--cream); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   img { display: block; max-width: 100%; }
   a { color: inherit; text-decoration: none; }
@@ -72,7 +76,15 @@
     background: linear-gradient(90deg, rgba(8,10,18,.72), rgba(8,10,18,.35) 45%, rgba(8,10,18,0) 72%),
                 linear-gradient(180deg, rgba(8,10,18,.45), rgba(8,10,18,0) 28%, rgba(8,10,18,0) 72%, rgba(8,10,18,.5)); }
   .hero.is-3d > canvas, .hero.is-3d .hero-shade { opacity: 1; }
-  .hero-content { position: relative; z-index: 2; max-width: 720px; }
+  .hero-content { position: relative; z-index: 2; max-width: 720px; translate: 0 calc(var(--hp, 0) * -140px); opacity: calc(1 - var(--hp, 0) * 2.8); }
+  .hero h1 { translate: 0 calc(var(--hp, 0) * -60px); }
+  /* Pinned hero: it holds still while scrolling flies the camera to the island, then lets go */
+  .hero-pin { position: relative; height: 240vh; }
+  .hero-pin > .hero { position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 560px; }
+  .hero-chapter { position: absolute; z-index: 2; left: max(20px, calc((100vw - 1180px) / 2)); top: 50%; max-width: 560px; pointer-events: none;
+    opacity: var(--hc, 0); translate: 0 calc(-50% + (1 - var(--hc, 0)) * 50px); }
+  .hero .hero-chapter p { font-family: var(--serif); font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.08; margin-top: 12px; text-shadow: 0 4px 30px rgba(0,0,0,.35); }
+  .hero-chapter em { color: #e3c48f; }
   .hero .eyebrow { display: inline-block; }
   .hero-content > * { animation: rise3d 1.1s cubic-bezier(.2,.8,.2,1) both; transform-origin: 50% 100%; }
   .hero-content > :nth-child(2) { animation-delay: .12s; }
@@ -83,6 +95,7 @@
     font-size: .7rem; letter-spacing: .24em; text-transform: uppercase; color: rgba(255,255,255,.72); opacity: 0; transition: opacity 1s ease 1.2s; pointer-events: none; }
   .hero-hint::after { content: ""; width: 1px; height: 30px; background: linear-gradient(#e3c48f, rgba(227,196,143,0)); animation: drip 1.8s ease-in-out infinite; transform-origin: top; }
   .hero.is-3d .hero-hint { opacity: 1; }
+  .hero.is-3d.moved .hero-hint { opacity: 0; transition-delay: 0s; }
   @keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
   @media (max-height: 700px) { .hero-hint { display: none; } }
   .hero h1 { font-size: clamp(2.6rem, 6.5vw, 5rem); margin: 16px 0 20px; }
@@ -113,7 +126,10 @@
 
   /* Rooms */
   #rooms { background: var(--sand); }
-  .rooms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+  .rooms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; width: min(1180px, 100% - 40px); margin-inline: auto; }
+  .room-slot { display: flex; }
+  .room-slot > .room { flex: 1; }
+  .rooms-progress { display: none; }
   .room { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: transform .35s, box-shadow .35s; }
   .room:hover { --lift: -6px; box-shadow: var(--shadow-lg); }
   .room-img { position: relative; overflow: hidden; aspect-ratio: 4/3; }
@@ -146,9 +162,7 @@
   .exp { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; margin-bottom: 80px; }
   .exp:last-child { margin-bottom: 0; }
   .exp:nth-child(even) .exp-img { order: 2; }
-  .exp-img { perspective: 1100px; }
-  .exp-img img { border-radius: var(--radius); aspect-ratio: 3/2; object-fit: cover; width: 100%;
-    transform: rotateY(var(--ey, 0deg)) rotateX(var(--ex, 0deg)); box-shadow: 0 30px 60px rgba(0,0,0,.35); will-change: transform; }
+  .exp-img img { border-radius: var(--radius); aspect-ratio: 3/2; object-fit: cover; width: 100%; }
   .exp h3 { font-size: 2rem; margin: 8px 0 14px; }
   .exp p { color: rgba(255,255,255,.72); margin-bottom: 18px; }
   .exp ul { list-style: none; display: grid; gap: 8px; }
@@ -258,13 +272,13 @@
   .to-top:hover { transform: translateY(-3px); }
 
   /* Reveal animation */
-  .reveal { opacity: 0; translate: 0 30px; transition: opacity .8s ease, translate .8s ease; }
+  .reveal { opacity: 0; translate: 0 30px; transition: opacity .8s ease var(--d, 0s), translate .8s ease var(--d, 0s); }
   .reveal.visible { opacity: 1; translate: none; }
 
   /* 3D tilt: cards lean towards the pointer, with a soft light that follows it */
   .tilt { --rx: 0deg; --ry: 0deg; --lift: 0px; transform: perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
-    transition: transform .6s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .3s, opacity .8s ease, translate .8s ease; }
-  .tilt.tilting { transition: transform .12s linear, box-shadow .35s, border-color .3s, opacity .8s ease, translate .8s ease; }
+    transition: transform .6s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .3s, opacity .8s ease var(--d, 0s), translate .8s ease var(--d, 0s); }
+  .tilt.tilting { transition: transform .12s linear, box-shadow .35s, border-color .3s, opacity .8s ease var(--d, 0s), translate .8s ease var(--d, 0s); }
   .tilt::after { content: ""; position: absolute; inset: 0; z-index: 3; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s;
     background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,.28), rgba(255,255,255,0) 55%); }
   .tilt.tilting::after { opacity: 1; }
@@ -306,11 +320,48 @@
   @media (max-width: 960px) { .suite-wrap { grid-template-columns: 1fr; } .suite-stage { min-height: 440px; } }
   @media (max-width: 520px) { .suite-stage { min-height: 360px; } .suite-info { padding: 24px; } }
   @media (max-width: 1100px) { .nav-links { gap: 20px; } }
+
+  /* ---------- Scroll-driven scenes ---------- */
+  .scroll-progress { position: fixed; inset: 0 0 auto; height: 3px; z-index: 70; pointer-events: none; transform-origin: 0 50%; transform: scaleX(0);
+    background: linear-gradient(90deg, var(--gold), #e3c48f); }
+
+  /* Headings reveal word by word */
+  .split .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .1em; margin-bottom: -.1em; }
+  .split .w > span { display: inline-block; transform: translateY(110%) rotate(5deg); transform-origin: 0 100%;
+    transition: transform .9s cubic-bezier(.2,.8,.2,1) calc(var(--i) * 70ms + .1s); }
+  .visible .split .w > span, .split.visible .w > span { transform: none; }
+
+  /* Text band that slides sideways as you scroll */
+  .marquee { overflow: hidden; padding: 10px 0 80px; background: var(--cream); }
+  .marquee-row { width: max-content; white-space: nowrap; font-family: var(--serif); font-size: clamp(2.6rem, 7vw, 6.2rem); line-height: 1.15; translate: -25% 0; will-change: translate; }
+  .marquee-row.outline { color: transparent; -webkit-text-stroke: 1px var(--gold); }
+  .marquee-row span { color: var(--gold); margin: 0 .4em; font-size: .45em; vertical-align: middle; }
+
+  /* Rooms: pinned while the cards slide sideways with a coverflow tilt */
+  #rooms.hscroll { padding: 0; }
+  #rooms.hscroll .rooms-pin { height: var(--pin-h, 300vh); }
+  #rooms.hscroll .rooms-sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; padding-top: 64px; }
+  #rooms.hscroll .section-head { margin-bottom: 28px; }
+  #rooms.hscroll .rooms-grid { display: flex; gap: 30px; width: max-content; margin: 0; padding-inline: max(20px, calc((100vw - 1180px) / 2)); will-change: translate; }
+  #rooms.hscroll .room-slot { width: min(430px, 78vw); flex: none; transform: perspective(1200px) rotateY(var(--rot, 0deg)) scale(var(--sc, 1)); }
+  #rooms.hscroll .room-img { aspect-ratio: 16/10; }
+  #rooms.hscroll .rooms-progress { display: flex; white-space: nowrap; align-items: center; gap: 16px; margin-top: 26px; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); }
+  @media (max-width: 520px) { .rooms-progress > span:last-child { display: none; } }
+  .rooms-progress .bar { flex: 0 1 240px; height: 2px; background: #ddd3c3; overflow: hidden; }
+  .rooms-progress .bar i { display: block; height: 100%; background: var(--gold); transform-origin: 0 50%; transform: scaleX(var(--rp, 0)); }
+
+  /* Experiences: each card sticks, the next slides over it and the one beneath sinks back */
+  .exp-stack .exp { position: sticky; top: calc(96px + var(--i, 0) * 20px); margin-bottom: 16vh; padding: 34px; border-radius: 26px;
+    background: #24211c; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 -24px 60px rgba(0,0,0,.4);
+    transform-origin: 50% 0; transform: scale(var(--s, 1)); filter: brightness(var(--b, 1)); }
+  .exp-stack .exp:last-child { margin-bottom: 0; }
   @keyframes fade { from { opacity: 0; } }
   @keyframes pop { from { transform: scale(.94); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
     .reveal { opacity: 1; translate: none; }
+    .hero-pin { height: auto; }
+    .hero-pin > .hero { position: relative; height: auto; min-height: 100vh; }
   }
 
   /* Responsive */
@@ -341,6 +392,7 @@
 </style>
 </head>
 <body>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
 <header id="header">
   <nav class="container nav" aria-label="Main">
@@ -361,6 +413,7 @@
 </header>
 
 <main>
+  <div class="hero-pin" id="heroPin">
   <section class="hero" id="home">
     <canvas id="heroCanvas" aria-hidden="true"></canvas>
     <div class="hero-shade" aria-hidden="true"></div>
@@ -373,8 +426,13 @@
         <a href="#suite3d" class="btn btn-outline">Take the 3D Tour</a>
       </div>
     </div>
-    <div class="hero-hint" aria-hidden="true">Scroll to watch the sun set</div>
+    <div class="hero-chapter" aria-hidden="true">
+      <span class="eyebrow">Golden hour at Palm Bay</span>
+      <p>Arrive by sea.<br><em>Stay for the sunsets.</em></p>
+    </div>
+    <div class="hero-hint" aria-hidden="true">Scroll to fly in</div>
   </section>
+  </div>
 
   <div class="booking container" id="booking">
     <form id="bookingForm" novalidate>
@@ -424,14 +482,24 @@
     </div>
   </section>
 
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-row">Ocean-view suites<span>✦</span>Infinity pool<span>✦</span>Spa &amp; wellness<span>✦</span>Fine dining<span>✦</span>Rooftop bar<span>✦</span>Ocean-view suites<span>✦</span>Infinity pool<span>✦</span>Spa &amp; wellness<span>✦</span>Fine dining<span>✦</span>Rooftop bar<span>✦</span></div>
+    <div class="marquee-row outline">Palm Bay, Goa<span>✦</span>Sunsets every evening<span>✦</span>24-hour concierge<span>✦</span>Breakfast included<span>✦</span>Palm Bay, Goa<span>✦</span>Sunsets every evening<span>✦</span>24-hour concierge<span>✦</span>Breakfast included<span>✦</span></div>
+  </div>
+
   <section id="rooms">
-    <div class="container">
-      <div class="section-head reveal">
-        <span class="eyebrow">Accommodation</span>
-        <h2>Rooms &amp; Suites</h2>
-        <p>Four room types, each with premium bedding, rain showers and complimentary breakfast.</p>
+    <div class="rooms-pin" id="roomsPin">
+      <div class="rooms-sticky">
+        <div class="container">
+          <div class="section-head reveal">
+            <span class="eyebrow">Accommodation</span>
+            <h2>Rooms &amp; Suites</h2>
+            <p>Four room types, each with premium bedding, rain showers and complimentary breakfast.</p>
+          </div>
+        </div>
+        <div class="rooms-grid" id="roomsGrid"></div>
+        <div class="container rooms-progress" aria-hidden="true"><span id="roomsCount">01 / 04</span><span class="bar"><i></i></span><span>Keep scrolling</span></div>
       </div>
-      <div class="rooms-grid" id="roomsGrid"></div>
     </div>
   </section>
 
@@ -594,7 +662,7 @@
   </div>
 </footer>
 
-<div class="modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div class="modal" id="bookingModal" data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-card">
     <button class="modal-x" data-close aria-label="Close">✕</button>
     <div data-step="summary">
@@ -633,7 +701,7 @@
   </div>
 </div>
 
-<div class="modal" id="manageModal" role="dialog" aria-modal="true" aria-labelledby="manageTitle">
+<div class="modal" id="manageModal" data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="manageTitle">
   <div class="modal-card">
     <button class="modal-x" data-close aria-label="Close">✕</button>
     <span class="eyebrow">Manage booking</span>
@@ -696,6 +764,13 @@
   const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
   const fmtDate = s => parse(s).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  const heroPin = $("#heroPin");
+  // Smooth scrolling (Lenis) is started by the module script at the end; without it these fall back to native scrolling.
+  const glideTo = (el, center) => window.lenis
+    ? window.lenis.scrollTo(el, { offset: center ? -(innerHeight - el.offsetHeight) / 2 : 0 })
+    : el.scrollIntoView({ behavior: "smooth", block: center ? "center" : "start" });
+  const lockScroll = locked => window.lenis?.[locked ? "stop" : "start"]();
 
   // ---------- API ----------
   async function api(path, options = {}) {
@@ -748,7 +823,7 @@
 
   // ---------- Rooms ----------
   $("#roomsGrid").innerHTML = ROOMS.map(r => `
-    <article class="room tilt reveal">
+    <div class="room-slot"><article class="room tilt reveal">
       <div class="room-img"><img src="${img(r.photo, 700)}" alt="${r.name}" loading="lazy"><span class="price-tag"><strong>${inr(r.price)}</strong> / night</span></div>
       <div class="room-body">
         <h3>${r.name}</h3>
@@ -760,20 +835,20 @@
           <button class="btn btn-dark" type="button" data-room="${r.slug}">Book now</button>
         </div>
       </div>
-    </article>`).join("");
+    </article></div>`).join("");
   $("#roomType").innerHTML = ROOMS.map(r => `<option value="${r.slug}">${r.name} · ${inr(r.price)}</option>`).join("");
   // "Book" buttons (room cards and the 3D tour) fill in the booking bar; "View in 3D" opens the tour.
   document.addEventListener("click", e => {
     const book = e.target.closest("[data-room]");
     if (book) {
       $("#roomType").value = book.dataset.room;
-      $("#booking").scrollIntoView({ behavior: "smooth", block: "center" });
+      glideTo($("#booking"), true);
       setTimeout(() => $("#checkin").focus({ preventScroll: true }), 500);
     }
     const tour = e.target.closest("[data-view3d]");
     if (tour) {
       selectSuite(tour.dataset.view3d);
-      $("#suite3d").scrollIntoView({ behavior: "smooth" });
+      glideTo($("#suite3d"));
     }
   });
 
@@ -840,6 +915,7 @@
     if (i !== frontIndex()) return rotateTo(i);   // a side photo comes to the front first
     showImage(i);
     lightbox.classList.add("open");
+    lockScroll(true);
   }));
   ringStage.addEventListener("pointerdown", e => {
     if (e.button !== 0) return;
@@ -880,13 +956,25 @@
   });
   $("#ringPrev").onclick = () => rotateTo(frontIndex() - 1);
   $("#ringNext").onclick = () => rotateTo(frontIndex() + 1);
+  // Scrolling past the gallery turns the ring too, then it settles on the nearest photo.
+  let ringScrollY = scrollY, ringSettle;
+  addEventListener("scroll", () => {
+    const dy = scrollY - ringScrollY;
+    ringScrollY = scrollY;
+    if (!ringVisible || drag.active || reduceMotion) return;
+    ringAngle -= dy * 0.06;
+    ringGoal = null; ringVel = 0;
+    drawRing();
+    clearTimeout(ringSettle);
+    ringSettle = setTimeout(() => { ringGoal = Math.round(ringAngle / STEP) * STEP; }, 160);
+  }, { passive: true });
   new ResizeObserver(layoutRing).observe(ringStage);
   new IntersectionObserver(([en]) => {
     const wasVisible = ringVisible;
     ringVisible = en.isIntersecting;
     if (ringVisible && !wasVisible) requestAnimationFrame(ringTick);
   }).observe(ringStage);
-  const closeLightbox = () => lightbox.classList.remove("open");
+  const closeLightbox = () => { lightbox.classList.remove("open"); lockScroll(false); };
   lightbox.querySelector(".lb-close").onclick = closeLightbox;
   lightbox.querySelector(".lb-prev").onclick = () => showImage(current - 1);
   lightbox.querySelector(".lb-next").onclick = () => showImage(current + 1);
@@ -908,8 +996,8 @@
   const modal = $("#bookingModal");
   let currentQuote = null;
   const showStep = step => modal.querySelectorAll("[data-step]").forEach(el => el.hidden = el.dataset.step !== step);
-  const openModal = m => { m.classList.add("open"); document.body.style.overflow = "hidden"; };
-  const closeModals = () => { document.querySelectorAll(".modal.open").forEach(m => m.classList.remove("open")); document.body.style.overflow = ""; };
+  const openModal = m => { m.classList.add("open"); document.body.style.overflow = "hidden"; lockScroll(true); };
+  const closeModals = () => { document.querySelectorAll(".modal.open").forEach(m => m.classList.remove("open")); document.body.style.overflow = ""; lockScroll(false); };
 
   function renderSummary(q) {
     $("#summary").innerHTML = `
@@ -1059,11 +1147,12 @@
 
   // ---------- Header, mobile menu, back-to-top ----------
   const onScroll = () => {
-    $("#header").classList.toggle("scrolled", scrollY > 40);
+    // Stay transparent over the pinned hero; turn solid once it lets go.
+    $("#header").classList.toggle("scrolled", scrollY > Math.max(40, heroPin.offsetHeight - innerHeight - 60));
     $("#toTop").classList.toggle("show", scrollY > 700);
   };
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
-  $("#toTop").onclick = () => scrollTo({ top: 0, behavior: "smooth" });
+  $("#toTop").onclick = () => window.lenis ? window.lenis.scrollTo(0) : scrollTo({ top: 0, behavior: "smooth" });
   const toggle = $(".menu-toggle");
   function closeMenu() { document.body.classList.remove("menu-open"); toggle.setAttribute("aria-expanded", "false"); }
   toggle.addEventListener("click", () => toggle.setAttribute("aria-expanded", document.body.classList.toggle("menu-open")));
@@ -1107,23 +1196,107 @@
     });
   }
 
-  // ---------- Experiences: photos swing through 3D as they scroll past ----------
-  const expImgs = [...document.querySelectorAll(".exp-img")];
-  let expQueued = false;
+  // ---------- Scroll-driven scenes ----------
+  // Progress (0..1) through a tall "pin" wrapper whose sticky child holds the screen while you scroll.
+  const pinProgress = el => { const r = el.getBoundingClientRect(); return clamp01(-r.top / Math.max(1, r.height - innerHeight)); };
+
+  // Hero: the copy drifts up and fades, then a second line appears while the camera flies in (js/hero3d.js).
+  const heroEl = $("#home");
+  function updateHero() {
+    const p = pinProgress(heroPin);
+    heroEl.style.setProperty("--hp", p.toFixed(4));
+    heroEl.style.setProperty("--hc", (clamp01((p - 0.3) / 0.14) * clamp01((0.84 - p) / 0.12)).toFixed(4));
+    heroEl.classList.toggle("moved", p > 0.02);
+  }
+
+  // Rooms: vertical scroll moves the cards sideways; cards off-centre turn towards the middle.
+  const roomsSection = $("#rooms"), roomsPin = $("#roomsPin"), roomsGrid = $("#roomsGrid");
+  const slots = [...roomsGrid.children];
+  let roomsTravel = 0;
+  function layoutRooms() {
+    const on = !reduceMotion && innerHeight >= 680;
+    roomsSection.classList.toggle("hscroll", on);
+    roomsGrid.style.translate = "";
+    roomsTravel = on ? Math.max(0, roomsGrid.scrollWidth - innerWidth) : 0;
+    roomsPin.style.setProperty("--pin-h", `${innerHeight + roomsTravel}px`);
+  }
+  function updateRooms() {
+    if (!roomsTravel) return;
+    const p = pinProgress(roomsPin);
+    roomsGrid.style.translate = `${(-p * roomsTravel).toFixed(1)}px 0`;
+    slots.forEach(slot => {
+      const r = slot.getBoundingClientRect();
+      const off = Math.max(-1, Math.min(1, (r.left + r.width / 2 - innerWidth / 2) / innerWidth));
+      slot.style.setProperty("--rot", `${(-off * 28).toFixed(2)}deg`);
+      slot.style.setProperty("--sc", (1 - Math.abs(off) * 0.12).toFixed(3));
+    });
+    roomsPin.style.setProperty("--rp", p.toFixed(3));
+    $("#roomsCount").textContent = `0${Math.round(p * (slots.length - 1)) + 1} / 0${slots.length}`;
+  }
+
+  // Experiences: stacking cards, on screens tall enough to show a whole card.
+  const expWrap = $("#experiences .container"), exps = [...document.querySelectorAll(".exp")];
+  exps.forEach((e, i) => e.style.setProperty("--i", i));
+  function layoutExp() {
+    expWrap.classList.remove("exp-stack");
+    const fits = exps.every(e => e.offsetHeight < innerHeight - 180);
+    expWrap.classList.toggle("exp-stack", !reduceMotion && innerWidth > 960 && fits);
+  }
   function updateExp() {
-    expQueued = false;
-    expImgs.forEach((el, i) => {
-      const r = el.getBoundingClientRect();
-      if (r.bottom < -100 || r.top > innerHeight + 100) return;
-      const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - innerHeight / 2) / innerHeight));
-      el.style.setProperty("--ey", `${((i % 2 ? -1 : 1) * p * 22).toFixed(2)}deg`);
-      el.style.setProperty("--ex", `${(p * 8).toFixed(2)}deg`);
+    if (!expWrap.classList.contains("exp-stack")) return;
+    exps.forEach((e, i) => {
+      const next = exps[i + 1];
+      const q = next ? clamp01((innerHeight - next.getBoundingClientRect().top) / (innerHeight - 96 - (i + 1) * 20)) : 0;
+      e.style.setProperty("--s", (1 - q * 0.06).toFixed(4));
+      e.style.setProperty("--b", (1 - q * 0.45).toFixed(3));
     });
   }
-  if (!reduceMotion) {
-    addEventListener("scroll", () => { if (!expQueued) { expQueued = true; requestAnimationFrame(updateExp); } }, { passive: true });
-    updateExp();
+
+  // Text band: the two rows slide in opposite directions.
+  const marquee = $(".marquee"), marqueeRows = [...marquee.children];
+  function updateMarquee() {
+    const r = marquee.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return;
+    const p = (innerHeight - r.top) / (innerHeight + r.height);
+    marqueeRows.forEach((row, i) => { row.style.translate = `${(-25 + (i ? -1 : 1) * (p - 0.5) * 30).toFixed(2)}% 0`; });
   }
+
+  const progressBar = $("#scrollProgress");
+  let scenesQueued = false;
+  function runScenes() {
+    scenesQueued = false;
+    progressBar.style.transform = `scaleX(${clamp01(scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)).toFixed(4)})`;
+    if (reduceMotion) return;
+    updateHero();
+    updateRooms();
+    updateExp();
+    updateMarquee();
+  }
+  function layoutScenes() { layoutRooms(); layoutExp(); runScenes(); }
+  addEventListener("scroll", () => { if (!scenesQueued) { scenesQueued = true; requestAnimationFrame(runScenes); } }, { passive: true });
+  addEventListener("resize", layoutScenes);
+  layoutScenes();
+
+  // Headings reveal word by word; grid cards arrive one after another.
+  if (!reduceMotion) {
+    document.querySelectorAll(".section-head h2, .about-text h2, .contact-info h2").forEach(h => {
+      const text = h.textContent.trim();
+      h.setAttribute("aria-label", text);
+      h.innerHTML = text.split(/\s+/).map((w, i) => `<span class="w" aria-hidden="true"><span style="--i:${i}">${esc(w)}</span></span>`).join(" ");
+      h.classList.add("split");
+    });
+  }
+  document.querySelectorAll(".amenities, .reviews").forEach(g => [...g.children].forEach((c, i) => c.style.setProperty("--d", `${(i % 3) * 90}ms`)));
+
+  // In-page links glide with Lenis instead of jumping.
+  document.addEventListener("click", e => {
+    const href = e.target.closest('a[href^="#"]')?.getAttribute("href");
+    const target = href && href.length > 1 && document.querySelector(href);
+    if (!target || !window.lenis) return;
+    e.preventDefault();
+    if (target === heroPin || target === heroEl) return window.lenis.scrollTo(0);
+    glideTo(target, target.id === "booking");
+  });
 
   // ---------- 3D room tour: tabs and details (the 3D model itself loads from js/suite3d.js) ----------
   const SUITE_NOTES = {
@@ -1162,8 +1335,16 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
 </script>
 <script type="module">
-  // The 3D scenes need WebGL 2. Without it the page keeps its photos and everything else still works.
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Smooth, eased scrolling. The page scrolls natively if this can't load or the visitor prefers reduced motion.
+  if (!reducedMotion) {
+    import("https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.mjs")
+      .then(({ default: Lenis }) => { window.lenis = new Lenis({ lerp: 0.1, autoRaf: true }); })
+      .catch(err => console.warn("Smooth scrolling unavailable:", err));
+  }
+
+  // The 3D scenes need WebGL 2. Without it the page keeps its photos and everything else still works.
   const webgl2 = (() => { try { return !!document.createElement("canvas").getContext("webgl2"); } catch { return false; } })();
   if (webgl2) {
     import("./js/hero3d.js")

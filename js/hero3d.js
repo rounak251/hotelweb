@@ -1,5 +1,5 @@
 // 3D hero: a sunset ocean with the resort on an island and lanterns rising off the water.
-// Scrolling through the hero sets the sun; the camera follows the pointer.
+// Scrolling through the (pinned) hero flies the camera to the island as the sun sets; the camera follows the pointer.
 import * as THREE from "three";
 import { Water } from "three/addons/objects/Water.js";
 import { Sky } from "three/addons/objects/Sky.js";
@@ -243,9 +243,12 @@ export function initHero(canvas, { reducedMotion = false } = {}) {
   // Input: scroll progress through the hero and a smoothed pointer position.
   let progress = 0, shownProgress = -1;
   const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
+  // Progress through the pinned hero: 0 at the top, 1 when the pin lets go. Unpinned, it's progress through the hero.
+  const track = hero.closest(".hero-pin") || hero;
   const readScroll = () => {
-    const r = hero.getBoundingClientRect();
-    progress = THREE.MathUtils.clamp(-r.top / r.height, 0, 1);
+    const r = track.getBoundingClientRect();
+    const span = r.height - innerHeight > 50 ? r.height - innerHeight : r.height;
+    progress = THREE.MathUtils.clamp(-r.top / span, 0, 1);
   };
   addEventListener("scroll", () => { readScroll(); if (reducedMotion) requestRender(); }, { passive: true });
   if (!reducedMotion) {
@@ -273,8 +276,11 @@ export function initHero(canvas, { reducedMotion = false } = {}) {
       setSun(THREE.MathUtils.lerp(SUN_START, SUN_END, progress));
       shownProgress = progress;
     }
-    camera.position.set(pointer.sx * 14, 10 + progress * 26 - pointer.sy * 3, 100);
-    lookTarget.set(pointer.sx * 4, 52 - progress * 30 - pointer.sy * 6, -400);
+    // Fly across the water towards the island, ending just off its shore.
+    const f = THREE.MathUtils.smootherstep(progress, 0, 1);
+    const ix = island.position.x;
+    camera.position.set(ix * 0.55 * f + pointer.sx * 14, 10 + f * 16 - pointer.sy * 3, 100 - f * 350);
+    lookTarget.set(ix * f + pointer.sx * 4, 52 - f * 40 - pointer.sy * 6, -400 - f * 80);
     camera.lookAt(lookTarget);
     water.material.uniforms.time.value = time * 0.55;
     updateLanterns(time, dt);

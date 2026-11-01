@@ -22,6 +22,12 @@ A full-stack hotel website: a responsive, animated landing page plus a Flask + S
 - Cards tilt towards the pointer, experience photos swing through 3D as they scroll past, and the hero headline flips up on load
 - Without WebGL 2 the page keeps its photos; scenes pause when off screen and stay still with `prefers-reduced-motion`
 
+**Scroll-driven scenes** (smooth scrolling by [Lenis](https://github.com/darkroomengineering/lenis))
+- The hero pins while scrolling flies the camera across the water to the island; the headline drifts away and a second line appears
+- Rooms pin and slide sideways as you scroll down, with a coverflow tilt and a progress counter
+- Experience cards stack: each one sticks and the next slides over it
+- Headings reveal word by word, a text band slides in two directions, the gallery ring turns with the scroll, and a gold bar tracks reading progress
+
 **Backend** (`backend/app.py`, Flask + SQLite)
 | Endpoint | Purpose |
 |---|---|
@@ -55,4 +61,4 @@ Render's free tier has temporary disk storage, so the SQLite database resets on 
 ## Tech stack
 HTML5 · CSS3 (grid, flexbox, custom properties, 3D transforms) · vanilla JavaScript · Three.js (WebGL) · Python · Flask · SQLite · pytest
 
-Photos from [Unsplash](https://unsplash.com). 3D built with [three.js](https://threejs.org) (MIT). Luxury Stays is a fictional hotel; this is a portfolio project.
+Photos from [Unsplash](https://unsplash.com). 3D built with [three.js](https://threejs.org) (MIT); smooth scrolling by [Lenis](https://github.com/darkroomengineering/lenis) (MIT). Luxury Stays is a fictional hotel; this is a portfolio project.
